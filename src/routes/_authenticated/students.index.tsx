@@ -18,7 +18,7 @@ import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export const Route = createFileRoute("/_authenticated/students")({
+export const Route = createFileRoute("/_authenticated/students/")({
   head: () => ({ meta: [{ title: "Students · MySOC Labs Attendance" }] }),
   component: StudentsPage,
 });
