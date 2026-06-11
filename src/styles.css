@@ -42,33 +42,33 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Dark blue professional theme — applied as the default (no light mode). */
+/* Dark + red theme matching Infosec Diaries shield logo. */
 :root {
   --radius: 0.625rem;
 
-  --background: oklch(0.18 0.04 256);
-  --foreground: oklch(0.97 0.01 250);
+  --background: oklch(0.16 0.02 25);
+  --foreground: oklch(0.97 0.01 25);
 
-  --card: oklch(0.22 0.05 258);
-  --card-foreground: oklch(0.97 0.01 250);
+  --card: oklch(0.21 0.03 25);
+  --card-foreground: oklch(0.97 0.01 25);
 
-  --popover: oklch(0.22 0.05 258);
-  --popover-foreground: oklch(0.97 0.01 250);
+  --popover: oklch(0.21 0.03 25);
+  --popover-foreground: oklch(0.97 0.01 25);
 
-  --primary: oklch(0.68 0.16 250);
-  --primary-foreground: oklch(0.15 0.03 256);
+  --primary: oklch(0.58 0.22 27);
+  --primary-foreground: oklch(0.98 0.01 25);
 
-  --secondary: oklch(0.28 0.05 258);
-  --secondary-foreground: oklch(0.97 0.01 250);
+  --secondary: oklch(0.27 0.04 25);
+  --secondary-foreground: oklch(0.97 0.01 25);
 
-  --muted: oklch(0.26 0.04 258);
-  --muted-foreground: oklch(0.72 0.03 250);
+  --muted: oklch(0.25 0.03 25);
+  --muted-foreground: oklch(0.72 0.03 25);
 
-  --accent: oklch(0.32 0.07 258);
-  --accent-foreground: oklch(0.97 0.01 250);
+  --accent: oklch(0.32 0.08 27);
+  --accent-foreground: oklch(0.97 0.01 25);
 
-  --destructive: oklch(0.62 0.22 25);
-  --destructive-foreground: oklch(0.98 0.01 250);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 25);
 
   --success: oklch(0.68 0.16 155);
   --success-foreground: oklch(0.12 0.03 160);
@@ -76,18 +76,18 @@
   --warning: oklch(0.78 0.15 75);
   --warning-foreground: oklch(0.15 0.03 70);
 
-  --border: oklch(0.32 0.04 258);
-  --input: oklch(0.28 0.04 258);
-  --ring: oklch(0.68 0.16 250);
+  --border: oklch(0.30 0.04 25);
+  --input: oklch(0.27 0.03 25);
+  --ring: oklch(0.58 0.22 27);
 
-  --sidebar: oklch(0.15 0.04 258);
-  --sidebar-foreground: oklch(0.95 0.01 250);
-  --sidebar-primary: oklch(0.68 0.16 250);
-  --sidebar-primary-foreground: oklch(0.12 0.03 256);
-  --sidebar-accent: oklch(0.24 0.05 258);
-  --sidebar-accent-foreground: oklch(0.97 0.01 250);
-  --sidebar-border: oklch(0.28 0.04 258);
-  --sidebar-ring: oklch(0.68 0.16 250);
+  --sidebar: oklch(0.13 0.02 25);
+  --sidebar-foreground: oklch(0.95 0.01 25);
+  --sidebar-primary: oklch(0.58 0.22 27);
+  --sidebar-primary-foreground: oklch(0.98 0.01 25);
+  --sidebar-accent: oklch(0.23 0.04 25);
+  --sidebar-accent-foreground: oklch(0.97 0.01 25);
+  --sidebar-border: oklch(0.27 0.03 25);
+  --sidebar-ring: oklch(0.58 0.22 27);
 }
 
 @layer base {
