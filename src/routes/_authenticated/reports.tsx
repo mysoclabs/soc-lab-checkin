@@ -23,7 +23,7 @@ type AttRow = {
   check_in: string | null;
   check_out: string | null;
   status: string;
-  students: { name: string; student_id: string; batch: string | null } | null;
+  students: { name: string; student_id: string; department: string | null } | null;
 };
 
 function ReportsPage() {
@@ -36,7 +36,7 @@ function ReportsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
-        <p className="text-sm text-muted-foreground">Daily, weekly, monthly attendance and student percentages.</p>
+        <p className="text-sm text-muted-foreground">Daily, weekly, monthly attendance and employee percentages.</p>
       </div>
 
       <Tabs defaultValue="daily">
@@ -44,7 +44,7 @@ function ReportsPage() {
           <TabsTrigger value="daily">Daily</TabsTrigger>
           <TabsTrigger value="weekly">Weekly</TabsTrigger>
           <TabsTrigger value="monthly">Monthly</TabsTrigger>
-          <TabsTrigger value="percentage">Student %</TabsTrigger>
+          <TabsTrigger value="percentage">Employee %</TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily" className="pt-4">
@@ -77,7 +77,7 @@ function useAttendanceRange(startDate: string, endDate: string) {
     queryFn: async (): Promise<AttRow[]> => {
       const { data, error } = await supabase
         .from("attendance")
-        .select("date, check_in, check_out, status, students:student_id(name, student_id, batch)")
+        .select("date, check_in, check_out, status, students:student_id(name, student_id, department)")
         .gte("date", startDate)
         .lte("date", endDate)
         .order("date", { ascending: true });
@@ -110,8 +110,8 @@ function RangeReport({
   const rows = data.map((r) => ({
     Date: r.date,
     Name: r.students?.name ?? "—",
-    "Student ID": r.students?.student_id ?? "—",
-    Batch: r.students?.batch ?? "—",
+    "Employee ID": r.students?.student_id ?? "—",
+    Department: r.students?.department ?? "—",
     "Check-in": r.check_in ? format(new Date(r.check_in), "HH:mm") : "—",
     "Check-out": r.check_out ? format(new Date(r.check_out), "HH:mm") : "—",
     Status: r.status,
@@ -129,8 +129,8 @@ function RangeReport({
             <FileSpreadsheet className="mr-1 h-4 w-4" /> Excel
           </Button>
           <Button variant="secondary" size="sm" onClick={() =>
-            exportPdf(title, ["Date", "Name", "Student ID", "Batch", "Check-in", "Check-out", "Status"],
-              rows.map((r) => [r.Date, r.Name, r["Student ID"], r.Batch, r["Check-in"], r["Check-out"], r.Status]),
+            exportPdf(title, ["Date", "Name", "Employee ID", "Department", "Check-in", "Check-out", "Status"],
+              rows.map((r) => [r.Date, r.Name, r["Employee ID"], r.Department, r["Check-in"], r["Check-out"], r.Status]),
               fileBase)
           }>
             <FileText className="mr-1 h-4 w-4" /> PDF
@@ -142,8 +142,8 @@ function RangeReport({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead><TableHead>Name</TableHead><TableHead>Student ID</TableHead>
-                <TableHead>Batch</TableHead><TableHead>Check-in</TableHead><TableHead>Check-out</TableHead><TableHead>Status</TableHead>
+                <TableHead>Date</TableHead><TableHead>Name</TableHead><TableHead>Employee ID</TableHead>
+                <TableHead>Department</TableHead><TableHead>Check-in</TableHead><TableHead>Check-out</TableHead><TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -155,8 +155,8 @@ function RangeReport({
                 rows.map((r, i) => (
                   <TableRow key={i}>
                     <TableCell>{r.Date}</TableCell><TableCell>{r.Name}</TableCell>
-                    <TableCell className="font-mono text-xs">{r["Student ID"]}</TableCell>
-                    <TableCell>{r.Batch}</TableCell><TableCell>{r["Check-in"]}</TableCell>
+                    <TableCell className="font-mono text-xs">{r["Employee ID"]}</TableCell>
+                    <TableCell>{r.Department}</TableCell><TableCell>{r["Check-in"]}</TableCell>
                     <TableCell>{r["Check-out"]}</TableCell><TableCell className="capitalize">{r.Status}</TableCell>
                   </TableRow>
                 ))
@@ -203,7 +203,7 @@ function PercentageReport() {
   const { data: students = [] } = useQuery({
     queryKey: ["students-all"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("students").select("id, name, student_id, batch");
+      const { data, error } = await supabase.from("students").select("id, name, student_id, department");
       if (error) throw error;
       return data ?? [];
     },
@@ -222,8 +222,8 @@ function PercentageReport() {
     const pct = businessDays > 0 ? Math.round((presentCount / businessDays) * 100) : 0;
     return {
       Name: s.name,
-      "Student ID": s.student_id,
-      Batch: s.batch ?? "—",
+      "Employee ID": s.student_id,
+      Department: s.department ?? "—",
       "Days Present": presentCount,
       "Business Days": businessDays,
       "Attendance %": `${pct}%`,
@@ -242,8 +242,8 @@ function PercentageReport() {
             <Download className="mr-1 h-4 w-4" /> Excel
           </Button>
           <Button variant="secondary" size="sm" onClick={() =>
-            exportPdf(title, ["Name", "Student ID", "Batch", "Days Present", "Business Days", "Attendance %"],
-              rows.map((r) => [r.Name, r["Student ID"], r.Batch, r["Days Present"], r["Business Days"], r["Attendance %"]]),
+            exportPdf(title, ["Name", "Employee ID", "Department", "Days Present", "Business Days", "Attendance %"],
+              rows.map((r) => [r.Name, r["Employee ID"], r.Department, r["Days Present"], r["Business Days"], r["Attendance %"]]),
               fileBase)}>
             <Download className="mr-1 h-4 w-4" /> PDF
           </Button>
@@ -254,7 +254,7 @@ function PercentageReport() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead><TableHead>Student ID</TableHead><TableHead>Batch</TableHead>
+                <TableHead>Name</TableHead><TableHead>Employee ID</TableHead><TableHead>Department</TableHead>
                 <TableHead>Days Present</TableHead><TableHead>Business Days</TableHead><TableHead>Attendance %</TableHead>
               </TableRow>
             </TableHeader>
@@ -264,8 +264,8 @@ function PercentageReport() {
               ) : rows.map((r, i) => (
                 <TableRow key={i}>
                   <TableCell>{r.Name}</TableCell>
-                  <TableCell className="font-mono text-xs">{r["Student ID"]}</TableCell>
-                  <TableCell>{r.Batch}</TableCell>
+                  <TableCell className="font-mono text-xs">{r["Employee ID"]}</TableCell>
+                  <TableCell>{r.Department}</TableCell>
                   <TableCell>{r["Days Present"]}</TableCell>
                   <TableCell>{r["Business Days"]}</TableCell>
                   <TableCell className="font-semibold">{r["Attendance %"]}</TableCell>
