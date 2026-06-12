@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Students", url: "/students", icon: Users },
+  { title: "Employees", url: "/students", icon: Users },
   { title: "Attendance", url: "/attendance", icon: ClipboardCheck },
   { title: "QR Scanner", url: "/scanner", icon: ScanLine },
   { title: "Reports", url: "/reports", icon: FileBarChart2 },
