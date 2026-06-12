@@ -56,30 +56,42 @@ export type Database = {
         Row: {
           batch: string | null
           created_at: string
+          department: string | null
+          designation: string | null
           email: string
           id: string
+          joining_date: string | null
           name: string
           phone: string | null
+          photo_url: string | null
           qr_code: string | null
           student_id: string
         }
         Insert: {
           batch?: string | null
           created_at?: string
+          department?: string | null
+          designation?: string | null
           email: string
           id?: string
+          joining_date?: string | null
           name: string
           phone?: string | null
+          photo_url?: string | null
           qr_code?: string | null
           student_id?: string
         }
         Update: {
           batch?: string | null
           created_at?: string
+          department?: string | null
+          designation?: string | null
           email?: string
           id?: string
+          joining_date?: string | null
           name?: string
           phone?: string | null
+          photo_url?: string | null
           qr_code?: string | null
           student_id?: string
         }
