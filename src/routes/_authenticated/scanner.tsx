@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScanLine, CheckCircle2, AlertTriangle, Camera, CameraOff } from "lucide-react";
+import { ScanLine, CheckCircle2, AlertTriangle, Camera, CameraOff, Loader2, LogOut as LogOutIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
