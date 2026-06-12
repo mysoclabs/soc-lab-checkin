@@ -85,7 +85,7 @@ function EmployeesPage() {
   const upsert = useMutation({
     mutationFn: async () => {
       const parsed = employeeSchema.parse(form);
-      const payload: Record<string, unknown> = {
+      const payload = {
         name: parsed.name,
         email: parsed.email,
         phone: parsed.phone || null,
