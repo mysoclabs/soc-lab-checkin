@@ -94,33 +94,44 @@ function AttendancePage() {
                   <TableHead>Department</TableHead>
                   <TableHead>Check-in</TableHead>
                   <TableHead>Check-out</TableHead>
+                  <TableHead>Hours</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : filtered.length === 0 ? (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">No records.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">No records.</TableCell></TableRow>
                 ) : (
-                  filtered.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell className="font-medium">{r.students?.name ?? "—"}</TableCell>
-                      <TableCell className="font-mono text-xs">{r.students?.student_id ?? "—"}</TableCell>
-                      <TableCell>{r.students?.department ?? "—"}</TableCell>
-                      <TableCell>{r.check_in ? format(new Date(r.check_in), "h:mm a") : "—"}</TableCell>
-                      <TableCell>{r.check_out ? format(new Date(r.check_out), "h:mm a") : "—"}</TableCell>
-                      <TableCell><Badge variant="secondary" className="capitalize">{r.status}</Badge></TableCell>
-                      <TableCell className="text-right">
-                        {!r.check_out && (
-                          <Button size="sm" variant="ghost" onClick={() => handleCheckOut(r)}>
-                            <LogOutIcon className="mr-1 h-4 w-4" /> Check-out
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  filtered.map((r) => {
+                    let hoursLabel = "—";
+                    if (r.check_in && r.check_out) {
+                      const ms = new Date(r.check_out).getTime() - new Date(r.check_in).getTime();
+                      const h = Math.floor(ms / 3_600_000);
+                      const m = Math.floor((ms % 3_600_000) / 60_000);
+                      hoursLabel = `${h}h ${m}m`;
+                    }
+                    return (
+                      <TableRow key={r.id}>
+                        <TableCell className="font-medium">{r.students?.name ?? "—"}</TableCell>
+                        <TableCell className="font-mono text-xs">{r.students?.student_id ?? "—"}</TableCell>
+                        <TableCell>{r.students?.department ?? "—"}</TableCell>
+                        <TableCell>{r.check_in ? format(new Date(r.check_in), "h:mm a") : "—"}</TableCell>
+                        <TableCell>{r.check_out ? format(new Date(r.check_out), "h:mm a") : "—"}</TableCell>
+                        <TableCell>{hoursLabel}</TableCell>
+                        <TableCell><Badge variant="secondary" className="capitalize">{r.status}</Badge></TableCell>
+                        <TableCell className="text-right">
+                          {!r.check_out && (
+                            <Button size="sm" variant="ghost" onClick={() => handleCheckOut(r)}>
+                              <LogOutIcon className="mr-1 h-4 w-4" /> Check-out
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
