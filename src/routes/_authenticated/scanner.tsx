@@ -80,7 +80,7 @@ function ScannerPage() {
 
     if (sErr || !student) {
       setFeedback({ kind: "error", message: `Unknown QR code: ${code}` });
-      toast.error("Unknown student QR");
+      toast.error("Unknown employee QR");
       return;
     }
 
