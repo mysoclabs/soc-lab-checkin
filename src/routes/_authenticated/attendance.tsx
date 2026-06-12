@@ -89,9 +89,9 @@ function AttendancePage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Student ID</TableHead>
-                  <TableHead>Batch</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Employee ID</TableHead>
+                  <TableHead>Department</TableHead>
                   <TableHead>Check-in</TableHead>
                   <TableHead>Check-out</TableHead>
                   <TableHead>Status</TableHead>
