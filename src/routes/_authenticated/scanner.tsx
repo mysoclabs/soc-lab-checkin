@@ -25,6 +25,7 @@ type Feedback = {
 
 function ScannerPage() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const [scanning, setScanning] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
