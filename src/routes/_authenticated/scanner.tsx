@@ -15,10 +15,12 @@ export const Route = createFileRoute("/_authenticated/scanner")({
 });
 
 type Feedback = {
-  kind: "success" | "duplicate" | "error";
+  kind: "check-in" | "check-out" | "complete" | "error";
   message: string;
   name?: string;
   time?: string;
+  hours?: string;
+  status?: string;
 };
 
 function ScannerPage() {
