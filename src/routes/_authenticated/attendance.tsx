@@ -108,7 +108,7 @@ function AttendancePage() {
                     <TableRow key={r.id}>
                       <TableCell className="font-medium">{r.students?.name ?? "—"}</TableCell>
                       <TableCell className="font-mono text-xs">{r.students?.student_id ?? "—"}</TableCell>
-                      <TableCell>{r.students?.batch ?? "—"}</TableCell>
+                      <TableCell>{r.students?.department ?? "—"}</TableCell>
                       <TableCell>{r.check_in ? format(new Date(r.check_in), "h:mm a") : "—"}</TableCell>
                       <TableCell>{r.check_out ? format(new Date(r.check_out), "h:mm a") : "—"}</TableCell>
                       <TableCell><Badge variant="secondary" className="capitalize">{r.status}</Badge></TableCell>
