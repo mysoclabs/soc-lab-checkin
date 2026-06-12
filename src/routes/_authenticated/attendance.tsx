@@ -22,7 +22,7 @@ type Row = {
   check_in: string | null;
   check_out: string | null;
   status: string;
-  students: { id: string; name: string; student_id: string; batch: string | null } | null;
+  students: { id: string; name: string; student_id: string; department: string | null } | null;
 };
 
 function AttendancePage() {
