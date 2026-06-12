@@ -22,7 +22,7 @@ type Row = {
   check_in: string | null;
   check_out: string | null;
   status: string;
-  students: { id: string; name: string; student_id: string; batch: string | null } | null;
+  students: { id: string; name: string; student_id: string; department: string | null } | null;
 };
 
 function AttendancePage() {
@@ -34,7 +34,7 @@ function AttendancePage() {
     queryFn: async (): Promise<Row[]> => {
       const { data, error } = await supabase
         .from("attendance")
-        .select("id, date, check_in, check_out, status, students:student_id(id, name, student_id, batch)")
+        .select("id, date, check_in, check_out, status, students:student_id(id, name, student_id, department)")
         .eq("date", date)
         .order("check_in", { ascending: true });
       if (error) throw error;
@@ -73,7 +73,7 @@ function AttendancePage() {
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by student name or ID…"
+                placeholder="Search by employee name or ID…"
                 className="pl-9"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -89,9 +89,9 @@ function AttendancePage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Student ID</TableHead>
-                  <TableHead>Batch</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Employee ID</TableHead>
+                  <TableHead>Department</TableHead>
                   <TableHead>Check-in</TableHead>
                   <TableHead>Check-out</TableHead>
                   <TableHead>Status</TableHead>
@@ -108,7 +108,7 @@ function AttendancePage() {
                     <TableRow key={r.id}>
                       <TableCell className="font-medium">{r.students?.name ?? "—"}</TableCell>
                       <TableCell className="font-mono text-xs">{r.students?.student_id ?? "—"}</TableCell>
-                      <TableCell>{r.students?.batch ?? "—"}</TableCell>
+                      <TableCell>{r.students?.department ?? "—"}</TableCell>
                       <TableCell>{r.check_in ? format(new Date(r.check_in), "h:mm a") : "—"}</TableCell>
                       <TableCell>{r.check_out ? format(new Date(r.check_out), "h:mm a") : "—"}</TableCell>
                       <TableCell><Badge variant="secondary" className="capitalize">{r.status}</Badge></TableCell>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,80 +14,112 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Upload, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
 export const Route = createFileRoute("/_authenticated/students/")({
-  head: () => ({ meta: [{ title: "Students · MySOC Labs Attendance" }] }),
-  component: StudentsPage,
+  head: () => ({ meta: [{ title: "Employees · MySOC Labs Attendance" }] }),
+  component: EmployeesPage,
 });
 
-type Student = {
+type Employee = {
   id: string;
   student_id: string;
   name: string;
   email: string;
   phone: string | null;
-  batch: string | null;
+  department: string | null;
+  designation: string | null;
+  joining_date: string | null;
+  photo_url: string | null;
   created_at: string;
 };
 
-const studentSchema = z.object({
+const employeeSchema = z.object({
   name: z.string().trim().min(1, "Name required").max(120),
   email: z.string().trim().email("Valid email required").max(255),
   phone: z.string().trim().max(30).optional().or(z.literal("")),
-  batch: z.string().trim().max(60).optional().or(z.literal("")),
+  department: z.string().trim().max(80).optional().or(z.literal("")),
+  designation: z.string().trim().max(80).optional().or(z.literal("")),
+  joining_date: z.string().trim().optional().or(z.literal("")),
 });
 
-async function fetchStudents(): Promise<Student[]> {
+async function fetchEmployees(): Promise<Employee[]> {
   const { data, error } = await supabase
     .from("students")
-    .select("id, student_id, name, email, phone, batch, created_at")
+    .select("id, student_id, name, email, phone, department, designation, joining_date, photo_url, created_at")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as Student[];
+  return (data ?? []) as Employee[];
 }
 
-function StudentsPage() {
+async function signedPhotoUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage.from("employee-photos").createSignedUrl(path, 3600);
+  return data?.signedUrl ?? null;
+}
+
+function EmployeesPage() {
   const qc = useQueryClient();
-  const { data: students = [], isLoading } = useQuery({ queryKey: ["students"], queryFn: fetchStudents });
+  const { data: employees = [], isLoading } = useQuery({ queryKey: ["employees"], queryFn: fetchEmployees });
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Student | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", batch: "" });
+  const [editing, setEditing] = useState<Employee | null>(null);
+  const [form, setForm] = useState({
+    name: "", email: "", phone: "", department: "", designation: "", joining_date: "",
+  });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return students;
-    return students.filter((s) =>
-      [s.name, s.student_id, s.email, s.phone ?? "", s.batch ?? ""].some((v) => v.toLowerCase().includes(q)),
+    if (!q) return employees;
+    return employees.filter((s) =>
+      [s.name, s.student_id, s.email, s.phone ?? "", s.department ?? "", s.designation ?? ""]
+        .some((v) => v.toLowerCase().includes(q)),
     );
-  }, [students, query]);
+  }, [employees, query]);
 
   const upsert = useMutation({
     mutationFn: async () => {
-      const parsed = studentSchema.parse(form);
+      const parsed = employeeSchema.parse(form);
       const payload = {
         name: parsed.name,
         email: parsed.email,
         phone: parsed.phone || null,
-        batch: parsed.batch || null,
+        department: parsed.department || null,
+        designation: parsed.designation || null,
+        joining_date: parsed.joining_date || null,
       };
+
+      let targetId = editing?.id;
       if (editing) {
         const { error } = await supabase.from("students").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("students").insert(payload);
+        const { data, error } = await supabase.from("students").insert(payload).select("id").single();
         if (error) throw error;
+        targetId = data.id;
+      }
+
+      if (photoFile && targetId) {
+        const ext = photoFile.name.split(".").pop() || "jpg";
+        const path = `${targetId}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("employee-photos")
+          .upload(path, photoFile, { upsert: true, contentType: photoFile.type });
+        if (upErr) throw upErr;
+        const { error: updErr } = await supabase.from("students").update({ photo_url: path }).eq("id", targetId);
+        if (updErr) throw updErr;
       }
     },
     onSuccess: () => {
-      toast.success(editing ? "Student updated" : "Student added");
+      toast.success(editing ? "Employee updated" : "Employee added");
       setOpen(false);
-      setEditing(null);
-      setForm({ name: "", email: "", phone: "", batch: "" });
-      qc.invalidateQueries({ queryKey: ["students"] });
+      resetForm();
+      qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
@@ -99,66 +131,120 @@ function StudentsPage() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Student deleted");
-      qc.invalidateQueries({ queryKey: ["students"] });
+      toast.success("Employee deleted");
+      qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
   });
 
-  const openAdd = () => {
+  const resetForm = () => {
     setEditing(null);
-    setForm({ name: "", email: "", phone: "", batch: "" });
+    setForm({ name: "", email: "", phone: "", department: "", designation: "", joining_date: "" });
+    setPhotoFile(null);
+    setPhotoPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const openAdd = () => {
+    resetForm();
     setOpen(true);
   };
-  const openEdit = (s: Student) => {
+  const openEdit = async (s: Employee) => {
     setEditing(s);
-    setForm({ name: s.name, email: s.email, phone: s.phone ?? "", batch: s.batch ?? "" });
+    setForm({
+      name: s.name,
+      email: s.email,
+      phone: s.phone ?? "",
+      department: s.department ?? "",
+      designation: s.designation ?? "",
+      joining_date: s.joining_date ?? "",
+    });
+    setPhotoFile(null);
+    setPhotoPreview(await signedPhotoUrl(s.photo_url));
     setOpen(true);
+  };
+
+  const onPickPhoto = (file: File | null) => {
+    setPhotoFile(file);
+    if (!file) return setPhotoPreview(null);
+    const reader = new FileReader();
+    reader.onload = (e) => setPhotoPreview(e.target?.result as string);
+    reader.readAsDataURL(file);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Students</h1>
-          <p className="text-sm text-muted-foreground">Manage enrolled students and their profiles.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Employees</h1>
+          <p className="text-sm text-muted-foreground">Manage employees and their profiles.</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button onClick={openAdd}><Plus className="mr-1 h-4 w-4" /> Add Student</Button>
+            <Button onClick={openAdd}><Plus className="mr-1 h-4 w-4" /> Add Employee</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>{editing ? "Edit student" : "Add student"}</DialogTitle>
+              <DialogTitle>{editing ? "Edit Employee" : "Add Employee"}</DialogTitle>
               <DialogDescription>
-                {editing ? "Update the student's details." : "A unique student ID and QR code are generated automatically."}
+                {editing ? "Update the employee's details." : "A unique Employee ID and QR code are generated automatically."}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-2">
+              <div className="flex items-center gap-4">
+                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </div>
+                <div>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => onPickPhoto(e.target.files?.[0] ?? null)}
+                  />
+                  <Button type="button" variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
+                    <Upload className="mr-1 h-4 w-4" /> {photoPreview ? "Change photo" : "Upload photo"}
+                  </Button>
+                  <p className="mt-1 text-xs text-muted-foreground">PNG or JPG, square works best.</p>
+                </div>
+              </div>
               <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Full Name</Label>
                 <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">Phone Number</Label>
                   <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="batch">Batch</Label>
-                  <Input id="batch" placeholder="e.g. 2026-Spring" value={form.batch} onChange={(e) => setForm({ ...form, batch: e.target.value })} />
+                  <Label htmlFor="joining_date">Joining Date</Label>
+                  <Input id="joining_date" type="date" value={form.joining_date} onChange={(e) => setForm({ ...form, joining_date: e.target.value })} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Input id="department" placeholder="e.g. Engineering" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="designation">Designation</Label>
+                  <Input id="designation" placeholder="e.g. Security Analyst" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} />
                 </div>
               </div>
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
               <Button onClick={() => upsert.mutate()} disabled={upsert.isPending}>
-                {editing ? "Save changes" : "Add student"}
+                {editing ? "Save changes" : "Add Employee"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -170,7 +256,7 @@ function StudentsPage() {
           <div className="relative mb-4">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search by name, ID, email, phone, or batch…"
+              placeholder="Search by name, ID, email, phone, department, or designation…"
               className="pl-9"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -181,10 +267,10 @@ function StudentsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Student ID</TableHead>
+                  <TableHead>Employee ID</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Batch</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Designation</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -192,15 +278,15 @@ function StudentsPage() {
                 {isLoading ? (
                   <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : filtered.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No students found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No employees found.</TableCell></TableRow>
                 ) : (
                   filtered.map((s) => (
                     <TableRow key={s.id}>
                       <TableCell className="font-medium">{s.name}</TableCell>
                       <TableCell className="font-mono text-xs">{s.student_id}</TableCell>
                       <TableCell>{s.email}</TableCell>
-                      <TableCell>{s.phone ?? "—"}</TableCell>
-                      <TableCell>{s.batch ?? "—"}</TableCell>
+                      <TableCell>{s.department ?? "—"}</TableCell>
+                      <TableCell>{s.designation ?? "—"}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
                           <Button asChild size="icon" variant="ghost">
@@ -217,7 +303,7 @@ function StudentsPage() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete student?</AlertDialogTitle>
+                                <AlertDialogTitle>Delete employee?</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   This permanently removes {s.name} and their attendance records.
                                 </AlertDialogDescription>
