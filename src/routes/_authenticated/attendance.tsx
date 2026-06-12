@@ -34,7 +34,7 @@ function AttendancePage() {
     queryFn: async (): Promise<Row[]> => {
       const { data, error } = await supabase
         .from("attendance")
-        .select("id, date, check_in, check_out, status, students:student_id(id, name, student_id, batch)")
+        .select("id, date, check_in, check_out, status, students:student_id(id, name, student_id, department)")
         .eq("date", date)
         .order("check_in", { ascending: true });
       if (error) throw error;
