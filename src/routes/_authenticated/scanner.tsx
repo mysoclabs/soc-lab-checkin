@@ -131,7 +131,7 @@ function ScannerPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">QR Scanner</h1>
-        <p className="text-sm text-muted-foreground">Scan student QR codes to record attendance. Optimized for Android tablets.</p>
+        <p className="text-sm text-muted-foreground">Scan employee QR codes to record attendance. Optimized for Android tablets.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
