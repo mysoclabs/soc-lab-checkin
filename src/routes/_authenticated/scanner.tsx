@@ -179,7 +179,20 @@ function ScannerPage() {
             <CardTitle className="flex items-center gap-2"><ScanLine className="h-5 w-5" /> Camera</CardTitle>
           </CardHeader>
           <CardContent>
-            <div id="qr-reader" className="mx-auto aspect-square w-full max-w-[520px] overflow-hidden rounded-lg bg-black" />
+            <div className="relative mx-auto aspect-square w-full max-w-[520px] overflow-hidden rounded-lg bg-black">
+              <div id="qr-reader" className="h-full w-full" />
+              {processing && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm">
+                  <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                  <p className="text-sm font-medium">Processing scan…</p>
+                </div>
+              )}
+              {!scanning && !processing && (
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
+                  Camera is off
+                </div>
+              )}
+            </div>
             <div className="mt-4 flex justify-center">
               {scanning ? (
                 <Button variant="secondary" onClick={stopScanner} size="lg">
@@ -201,18 +214,25 @@ function ScannerPage() {
           <CardContent>
             {!feedback ? (
               <p className="text-sm text-muted-foreground">Waiting for a scan…</p>
-            ) : feedback.kind === "success" ? (
+            ) : feedback.kind === "check-in" ? (
               <div className="space-y-3 rounded-lg border border-success/30 bg-success/10 p-4">
                 <div className="flex items-center gap-2 text-success"><CheckCircle2 className="h-5 w-5" /><span className="font-semibold">{feedback.message}</span></div>
                 <p className="text-2xl font-semibold">{feedback.name}</p>
                 <p className="text-sm text-muted-foreground">Checked in at {feedback.time}</p>
+                {feedback.status === "late" && <Badge variant="secondary" className="bg-warning/20 text-warning">Late</Badge>}
               </div>
-            ) : feedback.kind === "duplicate" ? (
+            ) : feedback.kind === "check-out" ? (
+              <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/10 p-4">
+                <div className="flex items-center gap-2 text-primary"><LogOutIcon className="h-5 w-5" /><span className="font-semibold">{feedback.message}</span></div>
+                <p className="text-2xl font-semibold">{feedback.name}</p>
+                <p className="text-sm text-muted-foreground">Checked out at {feedback.time}</p>
+                {feedback.hours && <Badge variant="secondary">Working hours: {feedback.hours}</Badge>}
+              </div>
+            ) : feedback.kind === "complete" ? (
               <div className="space-y-3 rounded-lg border border-warning/30 bg-warning/10 p-4">
                 <div className="flex items-center gap-2 text-warning"><AlertTriangle className="h-5 w-5" /><span className="font-semibold">{feedback.message}</span></div>
                 <p className="text-2xl font-semibold">{feedback.name}</p>
-                {feedback.time && <p className="text-sm text-muted-foreground">Earlier check-in at {feedback.time}</p>}
-                <Badge variant="secondary">Duplicate</Badge>
+                {feedback.time && <p className="text-sm text-muted-foreground">Checked out at {feedback.time}</p>}
               </div>
             ) : (
               <div className="space-y-2 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
