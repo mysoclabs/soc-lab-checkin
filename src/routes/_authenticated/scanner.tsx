@@ -75,59 +75,95 @@ function ScannerPage() {
     if (lastScanRef.current && lastScanRef.current.code === code && now - lastScanRef.current.at < 3000) return;
     lastScanRef.current = { code, at: now };
 
-    const { data: student, error: sErr } = await supabase
-      .from("students")
-      .select("id, name, student_id")
-      .eq("student_id", code)
-      .maybeSingle();
+    setProcessing(true);
+    try {
+      const { data: employee, error: sErr } = await supabase
+        .from("students")
+        .select("id, name, student_id")
+        .eq("student_id", code)
+        .maybeSingle();
 
-    if (sErr || !student) {
-      setFeedback({ kind: "error", message: `Unknown QR code: ${code}` });
-      toast.error("Unknown employee QR");
-      return;
-    }
+      if (sErr || !employee) {
+        setFeedback({ kind: "error", message: `Unknown QR code: ${code}` });
+        toast.error("Unknown employee QR");
+        return;
+      }
 
-    const today = format(new Date(), "yyyy-MM-dd");
-    const { data: existing } = await supabase
-      .from("attendance")
-      .select("id, check_in")
-      .eq("student_id", student.id)
-      .eq("date", today)
-      .maybeSingle();
+      const today = format(new Date(), "yyyy-MM-dd");
+      const { data: existing } = await supabase
+        .from("attendance")
+        .select("id, check_in, check_out, status")
+        .eq("student_id", employee.id)
+        .eq("date", today)
+        .maybeSingle();
 
-    if (existing) {
+      // Case 1: no record yet → Check-In
+      if (!existing) {
+        const checkIn = new Date();
+        const lateCutoff = "09:30:00";
+        const status = checkIn.toTimeString().slice(0, 8) > lateCutoff ? "late" : "present";
+        const { error: iErr } = await supabase.from("attendance").insert({
+          student_id: employee.id,
+          date: today,
+          check_in: checkIn.toISOString(),
+          status,
+        });
+        if (iErr) {
+          setFeedback({ kind: "error", message: iErr.message });
+          toast.error(iErr.message);
+          return;
+        }
+        setFeedback({
+          kind: "check-in",
+          message: "Check-In Successful",
+          name: employee.name,
+          time: format(checkIn, "h:mm a"),
+          status,
+        });
+        toast.success(`Welcome, ${employee.name}!${status === "late" ? " (Late)" : ""}`);
+        return;
+      }
+
+      // Case 2: already checked in and out → blocked
+      if (existing.check_out) {
+        setFeedback({
+          kind: "complete",
+          message: "Attendance already completed for today",
+          name: employee.name,
+          time: format(new Date(existing.check_out), "h:mm a"),
+        });
+        toast.warning(`${employee.name}: attendance already completed`);
+        return;
+      }
+
+      // Case 3: checked in but not out → Check-Out
+      const checkOut = new Date();
+      const checkInDate = existing.check_in ? new Date(existing.check_in) : checkOut;
+      const ms = checkOut.getTime() - checkInDate.getTime();
+      const hours = Math.floor(ms / 3_600_000);
+      const minutes = Math.floor((ms % 3_600_000) / 60_000);
+      const hoursLabel = `${hours}h ${minutes}m`;
+
+      const { error: uErr } = await supabase
+        .from("attendance")
+        .update({ check_out: checkOut.toISOString() })
+        .eq("id", existing.id);
+      if (uErr) {
+        setFeedback({ kind: "error", message: uErr.message });
+        toast.error(uErr.message);
+        return;
+      }
       setFeedback({
-        kind: "duplicate",
-        message: "Attendance already recorded",
-        name: student.name,
-        time: existing.check_in ? format(new Date(existing.check_in), "h:mm a") : undefined,
+        kind: "check-out",
+        message: "Check-Out Successful",
+        name: employee.name,
+        time: format(checkOut, "h:mm a"),
+        hours: hoursLabel,
       });
-      toast.warning(`${student.name}: already checked in today`);
-      return;
+      toast.success(`Goodbye, ${employee.name}! (${hoursLabel})`);
+    } finally {
+      setProcessing(false);
     }
-
-    const checkIn = new Date().toISOString();
-    const lateCutoff = "09:30:00";
-    const status = new Date(checkIn).toTimeString().slice(0, 8) > lateCutoff ? "late" : "present";
-
-    const { error: iErr } = await supabase.from("attendance").insert({
-      student_id: student.id,
-      date: today,
-      check_in: checkIn,
-      status,
-    });
-    if (iErr) {
-      setFeedback({ kind: "error", message: iErr.message });
-      toast.error(iErr.message);
-      return;
-    }
-    setFeedback({
-      kind: "success",
-      message: "Attendance recorded",
-      name: student.name,
-      time: format(new Date(checkIn), "h:mm a"),
-    });
-    toast.success(`Welcome, ${student.name}!`);
   };
 
   return (
