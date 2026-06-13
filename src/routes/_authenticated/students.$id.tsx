@@ -6,10 +6,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer, User } from "lucide-react";
+import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({
   head: () => ({ meta: [{ title: "Employee Profile · MySOC Labs Attendance" }] }),
-  component: EmployeeProfile,
+  component: () => (
+    <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
+      <EmployeeProfile />
+    </RoleGuard>
+  ),
 });
 
 function EmployeeProfile() {
