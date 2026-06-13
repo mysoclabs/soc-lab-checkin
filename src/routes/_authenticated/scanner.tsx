@@ -8,10 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { ScanLine, CheckCircle2, AlertTriangle, Camera, CameraOff, Loader2, LogOut as LogOutIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/scanner")({
   head: () => ({ meta: [{ title: "QR Scanner · MySOC Labs" }] }),
-  component: ScannerPage,
+  component: () => (
+    <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
+      <ScannerPage />
+    </RoleGuard>
+  ),
 });
 
 type Feedback = {

@@ -14,10 +14,15 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInte
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports · MySOC Labs" }] }),
-  component: ReportsPage,
+  component: () => (
+    <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
+      <ReportsPage />
+    </RoleGuard>
+  ),
 });
 
 const LATE_CUTOFF = "09:30:00";
