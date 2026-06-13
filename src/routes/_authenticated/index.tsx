@@ -9,9 +9,15 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend,
 } from "recharts";
 
+import { RoleGuard } from "@/components/role-guard";
+
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Dashboard · MySOC Labs Attendance" }] }),
-  component: Dashboard,
+  component: () => (
+    <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
+      <Dashboard />
+    </RoleGuard>
+  ),
 });
 
 type Stats = {
