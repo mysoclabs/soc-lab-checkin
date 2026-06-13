@@ -10,10 +10,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, Calendar as CalendarIcon, LogOut as LogOutIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
   head: () => ({ meta: [{ title: "Attendance · MySOC Labs" }] }),
-  component: AttendancePage,
+  component: () => (
+    <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
+      <AttendancePage />
+    </RoleGuard>
+  ),
 });
 
 type Row = {
