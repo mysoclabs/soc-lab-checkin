@@ -1,39 +1,59 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2, LogOut, GraduationCap } from "lucide-react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
+  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock,
+} from "lucide-react";
+import {
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
+  SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useUserRole, ROLE_LABELS, type AppRole } from "@/hooks/use-role";
+import { useQueryClient } from "@tanstack/react-query";
 
-const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Employees", url: "/students", icon: Users },
-  { title: "Attendance", url: "/attendance", icon: ClipboardCheck },
-  { title: "QR Scanner", url: "/scanner", icon: ScanLine },
-  { title: "Reports", url: "/reports", icon: FileBarChart2 },
-] as const;
+type NavItem = {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  roles: AppRole[];
+};
+
+const items: NavItem[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ["super_admin", "hr_admin"] },
+  { title: "Employees", url: "/students", icon: Users, roles: ["super_admin", "hr_admin"] },
+  { title: "Attendance", url: "/attendance", icon: ClipboardCheck, roles: ["super_admin", "hr_admin"] },
+  { title: "QR Scanner", url: "/scanner", icon: ScanLine, roles: ["super_admin", "hr_admin"] },
+  { title: "Reports", url: "/reports", icon: FileBarChart2, roles: ["super_admin", "hr_admin"] },
+  { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
+  { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee"] },
+  { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
+];
+
+const roleBadgeClass: Record<AppRole, string> = {
+  super_admin: "bg-primary/15 text-primary",
+  hr_admin: "bg-warning/15 text-warning",
+  employee: "bg-muted text-muted-foreground",
+};
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { role, email } = useUserRole();
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
   const handleSignOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
     toast.success("Signed out");
     navigate({ to: "/auth", replace: true });
   };
+
+  const visible = items.filter((i) => (role ? i.roles.includes(role) : false));
 
   return (
     <Sidebar collapsible="icon">
@@ -47,13 +67,21 @@ export function AppSidebar() {
             <span className="text-xs text-muted-foreground">Attendance System</span>
           </div>
         </div>
+        {role && (
+          <div className="px-2 pb-2 group-data-[collapsible=icon]:hidden">
+            <Badge variant="secondary" className={roleBadgeClass[role]}>
+              {ROLE_LABELS[role]}
+            </Badge>
+            {email && <p className="mt-1 truncate text-xs text-muted-foreground">{email}</p>}
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {visible.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
                     <Link to={item.url}>
