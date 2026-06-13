@@ -17,10 +17,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Search, Pencil, Trash2, Eye, Upload, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/")({
   head: () => ({ meta: [{ title: "Employees · MySOC Labs Attendance" }] }),
-  component: EmployeesPage,
+  component: () => (
+    <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
+      <EmployeesPage />
+    </RoleGuard>
+  ),
 });
 
 type Employee = {
