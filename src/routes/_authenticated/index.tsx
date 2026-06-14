@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, UserX, Clock, Activity } from "lucide-react";
+import { Users, UserCheck, UserX, Clock, Activity, CalendarDays } from "lucide-react";
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, eachDayOfInterval } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -131,6 +131,20 @@ function StatCard({ title, value, icon: Icon, tone }: { title: string; value: nu
 function Dashboard() {
   const { data, isLoading } = useQuery({ queryKey: ["dashboard-stats"], queryFn: loadStats, refetchInterval: 15000 });
   const { data: trends } = useQuery({ queryKey: ["dashboard-trends"], queryFn: loadTrends, refetchInterval: 60000 });
+  const { data: leaveStats } = useQuery({
+    queryKey: ["leave-stats"],
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data } = await supabase.from("leave_requests").select("status");
+      const rows = data ?? [];
+      return {
+        total: rows.length,
+        pending: rows.filter((r) => r.status === "pending").length,
+        approved: rows.filter((r) => r.status === "approved").length,
+        rejected: rows.filter((r) => r.status === "rejected").length,
+      };
+    },
+  });
 
   const axisStyle = { fontSize: 12, fill: "hsl(var(--muted-foreground))" };
   const tooltipStyle = {
@@ -152,6 +166,14 @@ function Dashboard() {
         <StatCard title="Absent Today" value={data?.absent ?? 0} icon={UserX} tone="bg-destructive/15 text-destructive" />
         <StatCard title="Late Entries" value={data?.late ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
       </div>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard title="Total Leave Requests" value={leaveStats?.total ?? 0} icon={CalendarDays} tone="bg-primary/15 text-primary" />
+        <StatCard title="Pending Leaves" value={leaveStats?.pending ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
+        <StatCard title="Approved Leaves" value={leaveStats?.approved ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
+        <StatCard title="Rejected Leaves" value={leaveStats?.rejected ?? 0} icon={UserX} tone="bg-destructive/15 text-destructive" />
+      </div>
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>

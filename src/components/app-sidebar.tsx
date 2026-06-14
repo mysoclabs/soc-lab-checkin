@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock,
+  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -26,9 +26,11 @@ const items: NavItem[] = [
   { title: "Attendance", url: "/attendance", icon: ClipboardCheck, roles: ["super_admin", "hr_admin"] },
   { title: "QR Scanner", url: "/scanner", icon: ScanLine, roles: ["super_admin", "hr_admin"] },
   { title: "Reports", url: "/reports", icon: FileBarChart2, roles: ["super_admin", "hr_admin"] },
+  { title: "Leave Management", url: "/leaves", icon: CalendarDays, roles: ["super_admin", "hr_admin"] },
   { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
   { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
+  { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin", "super_admin"] },
 ];
 
 const roleBadgeClass: Record<AppRole, string> = {

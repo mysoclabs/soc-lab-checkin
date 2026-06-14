@@ -15,8 +15,10 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedMyLeavesRouteImport } from './routes/_authenticated/my-leaves'
 import { Route as AuthenticatedMyAttendanceRouteImport } from './routes/_authenticated/my-attendance'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
+import { Route as AuthenticatedLeavesRouteImport } from './routes/_authenticated/leaves'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
@@ -50,6 +52,11 @@ const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyLeavesRoute = AuthenticatedMyLeavesRouteImport.update({
+  id: '/my-leaves',
+  path: '/my-leaves',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyAttendanceRoute =
   AuthenticatedMyAttendanceRouteImport.update({
     id: '/my-attendance',
@@ -59,6 +66,11 @@ const AuthenticatedMyAttendanceRoute =
 const AuthenticatedMeRoute = AuthenticatedMeRouteImport.update({
   id: '/me',
   path: '/me',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLeavesRoute = AuthenticatedLeavesRouteImport.update({
+  id: '/leaves',
+  path: '/leaves',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
@@ -82,8 +94,10 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/attendance': typeof AuthenticatedAttendanceRoute
+  '/leaves': typeof AuthenticatedLeavesRoute
   '/me': typeof AuthenticatedMeRoute
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
+  '/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -93,8 +107,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/attendance': typeof AuthenticatedAttendanceRoute
+  '/leaves': typeof AuthenticatedLeavesRoute
   '/me': typeof AuthenticatedMeRoute
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
+  '/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -107,8 +123,10 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
+  '/_authenticated/leaves': typeof AuthenticatedLeavesRoute
   '/_authenticated/me': typeof AuthenticatedMeRoute
   '/_authenticated/my-attendance': typeof AuthenticatedMyAttendanceRoute
+  '/_authenticated/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/scanner': typeof AuthenticatedScannerRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
@@ -122,8 +140,10 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/attendance'
+    | '/leaves'
     | '/me'
     | '/my-attendance'
+    | '/my-leaves'
     | '/reports'
     | '/scanner'
     | '/users'
@@ -133,8 +153,10 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/attendance'
+    | '/leaves'
     | '/me'
     | '/my-attendance'
+    | '/my-leaves'
     | '/reports'
     | '/scanner'
     | '/users'
@@ -146,8 +168,10 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/attendance'
+    | '/_authenticated/leaves'
     | '/_authenticated/me'
     | '/_authenticated/my-attendance'
+    | '/_authenticated/my-leaves'
     | '/_authenticated/reports'
     | '/_authenticated/scanner'
     | '/_authenticated/users'
@@ -205,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-leaves': {
+      id: '/_authenticated/my-leaves'
+      path: '/my-leaves'
+      fullPath: '/my-leaves'
+      preLoaderRoute: typeof AuthenticatedMyLeavesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-attendance': {
       id: '/_authenticated/my-attendance'
       path: '/my-attendance'
@@ -217,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/me'
       fullPath: '/me'
       preLoaderRoute: typeof AuthenticatedMeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/leaves': {
+      id: '/_authenticated/leaves'
+      path: '/leaves'
+      fullPath: '/leaves'
+      preLoaderRoute: typeof AuthenticatedLeavesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/attendance': {
@@ -245,8 +283,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
+  AuthenticatedLeavesRoute: typeof AuthenticatedLeavesRoute
   AuthenticatedMeRoute: typeof AuthenticatedMeRoute
   AuthenticatedMyAttendanceRoute: typeof AuthenticatedMyAttendanceRoute
+  AuthenticatedMyLeavesRoute: typeof AuthenticatedMyLeavesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedScannerRoute: typeof AuthenticatedScannerRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
@@ -257,8 +297,10 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
+  AuthenticatedLeavesRoute: AuthenticatedLeavesRoute,
   AuthenticatedMeRoute: AuthenticatedMeRoute,
   AuthenticatedMyAttendanceRoute: AuthenticatedMyAttendanceRoute,
+  AuthenticatedMyLeavesRoute: AuthenticatedMyLeavesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedScannerRoute: AuthenticatedScannerRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
