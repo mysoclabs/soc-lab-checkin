@@ -52,6 +52,62 @@ export type Database = {
           },
         ]
       }
+      leave_requests: {
+        Row: {
+          admin_comment: string | null
+          created_at: string
+          employee_id: string
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["leave_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_comment?: string | null
+          created_at?: string
+          employee_id: string
+          end_date: string
+          id?: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_comment?: string | null
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           batch: string | null
@@ -134,6 +190,8 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "hr_admin" | "employee"
+      leave_status: "pending" | "approved" | "rejected"
+      leave_type: "casual" | "sick" | "emergency" | "wfh"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -262,6 +320,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "hr_admin", "employee"],
+      leave_status: ["pending", "approved", "rejected"],
+      leave_type: ["casual", "sick", "emergency", "wfh"],
     },
   },
 } as const
