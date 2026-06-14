@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedMyLeavesRouteImport } from './routes/_authenticated/my-leaves'
 import { Route as AuthenticatedMyAttendanceRouteImport } from './routes/_authenticated/my-attendance'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
@@ -48,6 +49,11 @@ const AuthenticatedScannerRoute = AuthenticatedScannerRouteImport.update({
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyLeavesRoute = AuthenticatedMyLeavesRouteImport.update({
+  id: '/my-leaves',
+  path: '/my-leaves',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMyAttendanceRoute =
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/me': typeof AuthenticatedMeRoute
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
+  '/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/attendance': typeof AuthenticatedAttendanceRoute
   '/me': typeof AuthenticatedMeRoute
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
+  '/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/users': typeof AuthenticatedUsersRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
   '/_authenticated/me': typeof AuthenticatedMeRoute
   '/_authenticated/my-attendance': typeof AuthenticatedMyAttendanceRoute
+  '/_authenticated/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/scanner': typeof AuthenticatedScannerRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/me'
     | '/my-attendance'
+    | '/my-leaves'
     | '/reports'
     | '/scanner'
     | '/users'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/attendance'
     | '/me'
     | '/my-attendance'
+    | '/my-leaves'
     | '/reports'
     | '/scanner'
     | '/users'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/_authenticated/attendance'
     | '/_authenticated/me'
     | '/_authenticated/my-attendance'
+    | '/_authenticated/my-leaves'
     | '/_authenticated/reports'
     | '/_authenticated/scanner'
     | '/_authenticated/users'
@@ -205,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-leaves': {
+      id: '/_authenticated/my-leaves'
+      path: '/my-leaves'
+      fullPath: '/my-leaves'
+      preLoaderRoute: typeof AuthenticatedMyLeavesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-attendance': {
       id: '/_authenticated/my-attendance'
       path: '/my-attendance'
@@ -247,6 +266,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
   AuthenticatedMeRoute: typeof AuthenticatedMeRoute
   AuthenticatedMyAttendanceRoute: typeof AuthenticatedMyAttendanceRoute
+  AuthenticatedMyLeavesRoute: typeof AuthenticatedMyLeavesRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedScannerRoute: typeof AuthenticatedScannerRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
@@ -259,6 +279,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
   AuthenticatedMeRoute: AuthenticatedMeRoute,
   AuthenticatedMyAttendanceRoute: AuthenticatedMyAttendanceRoute,
+  AuthenticatedMyLeavesRoute: AuthenticatedMyLeavesRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedScannerRoute: AuthenticatedScannerRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
