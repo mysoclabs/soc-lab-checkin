@@ -131,6 +131,20 @@ function StatCard({ title, value, icon: Icon, tone }: { title: string; value: nu
 function Dashboard() {
   const { data, isLoading } = useQuery({ queryKey: ["dashboard-stats"], queryFn: loadStats, refetchInterval: 15000 });
   const { data: trends } = useQuery({ queryKey: ["dashboard-trends"], queryFn: loadTrends, refetchInterval: 60000 });
+  const { data: leaveStats } = useQuery({
+    queryKey: ["leave-stats"],
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data } = await supabase.from("leave_requests").select("status");
+      const rows = data ?? [];
+      return {
+        total: rows.length,
+        pending: rows.filter((r) => r.status === "pending").length,
+        approved: rows.filter((r) => r.status === "approved").length,
+        rejected: rows.filter((r) => r.status === "rejected").length,
+      };
+    },
+  });
 
   const axisStyle = { fontSize: 12, fill: "hsl(var(--muted-foreground))" };
   const tooltipStyle = {
