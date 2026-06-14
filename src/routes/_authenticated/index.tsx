@@ -167,6 +167,14 @@ function Dashboard() {
         <StatCard title="Late Entries" value={data?.late ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
       </div>
 
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard title="Total Leave Requests" value={leaveStats?.total ?? 0} icon={CalendarDays} tone="bg-primary/15 text-primary" />
+        <StatCard title="Pending Leaves" value={leaveStats?.pending ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
+        <StatCard title="Approved Leaves" value={leaveStats?.approved ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
+        <StatCard title="Rejected Leaves" value={leaveStats?.rejected ?? 0} icon={UserX} tone="bg-destructive/15 text-destructive" />
+      </div>
+
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle className="text-base">Daily Attendance Trend (Last 7 days)</CardTitle></CardHeader>
