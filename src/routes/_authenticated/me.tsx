@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { User, CalendarClock } from "lucide-react";
 import { RoleGuard } from "@/components/role-guard";
 import { useUserRole, ROLE_LABELS } from "@/hooks/use-role";
-import { TodayStatusCard } from "@/components/today-status-card";
 
 export const Route = createFileRoute("/_authenticated/me")({
   head: () => ({ meta: [{ title: "My Profile · MySOC Labs" }] }),
@@ -51,8 +50,6 @@ function MyProfilePage() {
         </h1>
         <p className="text-sm text-muted-foreground">Your account details and QR code.</p>
       </div>
-
-      <TodayStatusCard email={email} />
 
       <Card>
         <CardContent className="p-6">

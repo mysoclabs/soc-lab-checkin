@@ -324,42 +324,6 @@ export type Database = {
         }
         Relationships: []
       }
-      office_settings: {
-        Row: {
-          created_at: string
-          grace_period_minutes: number
-          half_day_threshold: string
-          id: number
-          late_threshold: string
-          office_end_time: string
-          office_start_time: string
-          updated_at: string
-          working_hours: number
-        }
-        Insert: {
-          created_at?: string
-          grace_period_minutes?: number
-          half_day_threshold?: string
-          id?: number
-          late_threshold?: string
-          office_end_time?: string
-          office_start_time?: string
-          updated_at?: string
-          working_hours?: number
-        }
-        Update: {
-          created_at?: string
-          grace_period_minutes?: number
-          half_day_threshold?: string
-          id?: number
-          late_threshold?: string
-          office_end_time?: string
-          office_start_time?: string
-          updated_at?: string
-          working_hours?: number
-        }
-        Relationships: []
-      }
       payroll: {
         Row: {
           amount: number

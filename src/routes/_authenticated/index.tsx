@@ -10,7 +10,6 @@ import {
 } from "recharts";
 
 import { RoleGuard } from "@/components/role-guard";
-import { OfficeTimingCard } from "@/components/office-timing-card";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Dashboard · MySOC Labs Attendance" }] }),
@@ -200,16 +199,9 @@ function Dashboard() {
         <p className="text-sm text-muted-foreground">Overview of today's attendance.</p>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <OfficeTimingCard />
-        <StatCard title="Present Today" value={data?.present ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
-        <StatCard title="Late Today" value={data?.late ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
-        <StatCard title="On Leave Today" value={employeesOnLeave.length} icon={CalendarDays} tone="bg-primary/15 text-primary" />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Employees" value={data?.total ?? 0} icon={Users} tone="bg-primary/15 text-primary" />
+        <StatCard title="Present Today" value={data?.present ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
         <StatCard title="Absent Today" value={data?.absent ?? 0} icon={UserX} tone="bg-destructive/15 text-destructive" />
-        <StatCard title="Working Hours" value={Math.round((data?.present ?? 0) * 8)} icon={Activity} tone="bg-accent/15 text-accent-foreground" />
         <StatCard title="Late Entries" value={data?.late ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
       </div>
 
