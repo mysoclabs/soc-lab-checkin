@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, UserX, Clock, Activity, CalendarDays } from "lucide-react";
+import { Users, UserCheck, UserX, Clock, Activity, CalendarDays, PartyPopper } from "lucide-react";
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, eachDayOfInterval } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -146,6 +146,44 @@ function Dashboard() {
     },
   });
 
+  const { data: upcomingHolidays = [] } = useQuery({
+    queryKey: ["upcoming-holidays"],
+    queryFn: async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      const { data } = await supabase.from("holidays").select("*").gte("date", today).order("date").limit(5);
+      return data ?? [];
+    },
+  });
+
+  const { data: employeesOnLeave = [] } = useQuery({
+    queryKey: ["employees-on-leave"],
+    queryFn: async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      const { data } = await supabase
+        .from("leave_requests")
+        .select("id, leave_type, students:employee_id(name, student_id)")
+        .eq("status", "approved")
+        .lte("start_date", today)
+        .gte("end_date", today);
+      return data ?? [];
+    },
+  });
+
+  const { data: shiftSummary = [] } = useQuery({
+    queryKey: ["shift-summary"],
+    queryFn: async () => {
+      const { data } = await supabase.from("employee_shifts").select("shift_id, shifts(name, start_time, end_time)");
+      const map = new Map<string, { name: string; time: string; count: number }>();
+      for (const row of (data ?? []) as Array<{ shift_id: string; shifts: { name: string; start_time: string; end_time: string } | null }>) {
+        if (!row.shifts) continue;
+        const cur = map.get(row.shift_id) ?? { name: row.shifts.name, time: `${row.shifts.start_time.slice(0,5)}–${row.shifts.end_time.slice(0,5)}`, count: 0 };
+        cur.count += 1;
+        map.set(row.shift_id, cur);
+      }
+      return Array.from(map.values());
+    },
+  });
+
   const axisStyle = { fontSize: 12, fill: "hsl(var(--muted-foreground))" };
   const tooltipStyle = {
     backgroundColor: "hsl(var(--popover))",
@@ -173,6 +211,64 @@ function Dashboard() {
         <StatCard title="Approved Leaves" value={leaveStats?.approved ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
         <StatCard title="Rejected Leaves" value={leaveStats?.rejected ?? 0} icon={UserX} tone="bg-destructive/15 text-destructive" />
       </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><PartyPopper className="h-4 w-4" /> Upcoming Holidays</CardTitle></CardHeader>
+          <CardContent>
+            {upcomingHolidays.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No upcoming holidays.</p>
+            ) : (
+              <ul className="space-y-2">
+                {upcomingHolidays.map((h) => (
+                  <li key={h.id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{h.name}</span>
+                    <span className="text-muted-foreground">{format(new Date(h.date), "MMM d")}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarDays className="h-4 w-4" /> Employees On Leave Today</CardTitle></CardHeader>
+          <CardContent>
+            {employeesOnLeave.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nobody on leave today.</p>
+            ) : (
+              <ul className="space-y-2">
+                {employeesOnLeave.map((l) => (
+                  <li key={l.id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{l.students?.name ?? "—"}</span>
+                    <Badge variant="secondary" className="capitalize">{l.leave_type}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Clock className="h-4 w-4" /> Shift Summary</CardTitle></CardHeader>
+          <CardContent>
+            {shiftSummary.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No shift assignments yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {shiftSummary.map((s, i) => (
+                  <li key={i} className="flex items-center justify-between text-sm">
+                    <span><span className="font-medium">{s.name}</span> <span className="text-xs text-muted-foreground">{s.time}</span></span>
+                    <Badge variant="secondary">{s.count}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+
 
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

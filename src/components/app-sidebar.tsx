@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays,
+  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -27,6 +27,8 @@ const items: NavItem[] = [
   { title: "QR Scanner", url: "/scanner", icon: ScanLine, roles: ["super_admin", "hr_admin"] },
   { title: "Reports", url: "/reports", icon: FileBarChart2, roles: ["super_admin", "hr_admin"] },
   { title: "Leave Management", url: "/leaves", icon: CalendarDays, roles: ["super_admin", "hr_admin"] },
+  { title: "Holidays", url: "/holidays", icon: PartyPopper, roles: ["super_admin", "hr_admin"] },
+  { title: "Shifts", url: "/shifts", icon: Clock, roles: ["super_admin", "hr_admin"] },
   { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
   { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },

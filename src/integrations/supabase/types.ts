@@ -52,6 +52,78 @@ export type Database = {
           },
         ]
       }
+      employee_shifts: {
+        Row: {
+          created_at: string
+          effective_from: string
+          employee_id: string
+          id: string
+          shift_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          effective_from?: string
+          employee_id: string
+          id?: string
+          shift_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          effective_from?: string
+          employee_id?: string
+          id?: string
+          shift_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_shifts_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holidays: {
+        Row: {
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["holiday_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["holiday_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["holiday_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leave_requests: {
         Row: {
           admin_comment: string | null
@@ -107,6 +179,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      shifts: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          is_default: boolean
+          late_cutoff_minutes: number
+          name: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          is_default?: boolean
+          late_cutoff_minutes?: number
+          name: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_default?: boolean
+          late_cutoff_minutes?: number
+          name?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       students: {
         Row: {
@@ -190,6 +295,7 @@ export type Database = {
     }
     Enums: {
       app_role: "super_admin" | "hr_admin" | "employee"
+      holiday_type: "public" | "company"
       leave_status: "pending" | "approved" | "rejected"
       leave_type: "casual" | "sick" | "emergency" | "wfh"
     }
@@ -320,6 +426,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["super_admin", "hr_admin", "employee"],
+      holiday_type: ["public", "company"],
       leave_status: ["pending", "approved", "rejected"],
       leave_type: ["casual", "sick", "emergency", "wfh"],
     },
