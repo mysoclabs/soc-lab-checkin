@@ -34,9 +34,13 @@ export const Route = createFileRoute("/_authenticated/users")({
 
 const roleBadge: Record<AppRole, string> = {
   super_admin: "bg-primary/15 text-primary",
+  founder: "bg-success/15 text-success",
+  finance: "bg-accent/15 text-accent-foreground",
   hr_admin: "bg-warning/15 text-warning",
   employee: "bg-muted text-muted-foreground",
 };
+
+const ROLE_OPTIONS: AppRole[] = ["super_admin", "founder", "finance", "hr_admin", "employee"];
 
 function UsersPage() {
   const listFn = useServerFn(listUsersWithRoles);
@@ -111,9 +115,9 @@ function UsersPage() {
                 <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as AppRole })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="super_admin">Super Admin</SelectItem>
-                    <SelectItem value="hr_admin">HR Admin</SelectItem>
-                    <SelectItem value="employee">Employee</SelectItem>
+                    {ROLE_OPTIONS.map((r) => (
+                      <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -161,9 +165,9 @@ function UsersPage() {
                       >
                         <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="super_admin">Super Admin</SelectItem>
-                          <SelectItem value="hr_admin">HR Admin</SelectItem>
-                          <SelectItem value="employee">Employee</SelectItem>
+                          {ROLE_OPTIONS.map((r) => (
+                            <SelectItem key={r} value={r}>{ROLE_LABELS[r]}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </TableCell>

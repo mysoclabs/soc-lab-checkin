@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield,
+  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -31,13 +31,16 @@ const items: NavItem[] = [
   { title: "Shifts", url: "/shifts", icon: Clock, roles: ["super_admin", "hr_admin"] },
   { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
   { title: "Audit Logs", url: "/audit-logs", icon: Shield, roles: ["super_admin", "hr_admin"] },
-  { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee"] },
+  { title: "Finance", url: "/finance", icon: Wallet, roles: ["super_admin", "founder", "finance"] },
+  { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee", "founder", "finance"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
   { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin", "super_admin"] },
 ];
 
 const roleBadgeClass: Record<AppRole, string> = {
   super_admin: "bg-primary/15 text-primary",
+  founder: "bg-success/15 text-success",
+  finance: "bg-accent/15 text-accent-foreground",
   hr_admin: "bg-warning/15 text-warning",
   employee: "bg-muted text-muted-foreground",
 };
