@@ -352,6 +352,77 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <RecentActivitiesCard />
+        <RecentNotificationsCard />
+      </div>
     </div>
+  );
+}
+
+function RecentActivitiesCard() {
+  const { data: activities = [] } = useQuery({
+    queryKey: ["recent-audit"],
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data } = await supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(8);
+      return data ?? [];
+    },
+  });
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Activity className="h-4 w-4" /> Recent Activities</CardTitle></CardHeader>
+      <CardContent>
+        {activities.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No activity yet.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {activities.map((a) => (
+              <li key={a.id} className="flex items-center justify-between py-2">
+                <div>
+                  <p className="text-sm font-medium capitalize">{a.action.replace(/_/g, " ")}</p>
+                  <p className="text-xs text-muted-foreground">{a.user_name ?? "system"} · {a.entity}</p>
+                </div>
+                <span className="text-xs text-muted-foreground">{format(new Date(a.created_at), "MMM d, h:mm a")}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function RecentNotificationsCard() {
+  const { data: notes = [] } = useQuery({
+    queryKey: ["recent-notifications"],
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(8);
+      return data ?? [];
+    },
+  });
+  return (
+    <Card>
+      <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarDays className="h-4 w-4" /> Recent Notifications</CardTitle></CardHeader>
+      <CardContent>
+        {notes.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No notifications.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {notes.map((n) => (
+              <li key={n.id} className="flex items-start justify-between gap-3 py-2">
+                <div>
+                  <p className="text-sm font-medium">{n.title}</p>
+                  {n.message && <p className="text-xs text-muted-foreground">{n.message}</p>}
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">{format(new Date(n.created_at), "MMM d")}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }

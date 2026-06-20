@@ -119,6 +119,17 @@ function EmployeesPage() {
         const { error: updErr } = await supabase.from("students").update({ photo_url: path }).eq("id", targetId);
         if (updErr) throw updErr;
       }
+
+      const { logAudit, notify } = await import("@/lib/audit");
+      await logAudit({
+        action: editing ? "employee_updated" : "employee_created",
+        entity: "employee",
+        entity_id: targetId,
+        details: { name: payload.name, email: payload.email },
+      });
+      if (!editing) {
+        await notify({ audience: "admins", type: "employee_created", title: "New employee added", message: `${payload.name} (${payload.email})`, link: "/students" });
+      }
     },
     onSuccess: () => {
       toast.success(editing ? "Employee updated" : "Employee added");
@@ -134,6 +145,8 @@ function EmployeesPage() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("students").delete().eq("id", id);
       if (error) throw error;
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({ action: "employee_deleted", entity: "employee", entity_id: id });
     },
     onSuccess: () => {
       toast.success("Employee deleted");

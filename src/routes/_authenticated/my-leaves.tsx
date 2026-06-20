@@ -82,15 +82,18 @@ function MyLeavesPage() {
       if (!startDate || !endDate) throw new Error("Pick start and end dates.");
       if (endDate < startDate) throw new Error("End date must be on or after start date.");
       if (reason.trim().length < 3) throw new Error("Please provide a reason.");
-      const { error } = await supabase.from("leave_requests").insert({
+      const { data: inserted, error } = await supabase.from("leave_requests").insert({
         employee_id: employee.id,
         user_id: userId,
         leave_type: leaveType as "casual" | "sick" | "emergency" | "wfh",
         start_date: format(startDate, "yyyy-MM-dd"),
         end_date: format(endDate, "yyyy-MM-dd"),
         reason: reason.trim(),
-      });
+      }).select("id").single();
       if (error) throw error;
+      const { logAudit, notify } = await import("@/lib/audit");
+      await logAudit({ action: "leave_submitted", entity: "leave_request", entity_id: inserted?.id, details: { type: leaveType, start: format(startDate, "yyyy-MM-dd"), end: format(endDate, "yyyy-MM-dd") } });
+      await notify({ audience: "admins", type: "leave_submitted", title: "New leave request", message: `${employee.name} requested ${leaveType} leave`, link: "/leaves" });
     },
     onSuccess: () => {
       toast.success("Leave request submitted");
