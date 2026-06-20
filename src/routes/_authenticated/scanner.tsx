@@ -42,6 +42,37 @@ type Feedback = {
 
 type CamDevice = { id: string; label: string };
 
+function isEmbeddedPreview() {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+}
+
+function cameraFeatureBlocked() {
+  const documentWithPolicy = document as Document & {
+    permissionsPolicy?: { allowsFeature: (feature: string) => boolean };
+    featurePolicy?: { allowsFeature: (feature: string) => boolean };
+  };
+  const policy = documentWithPolicy.permissionsPolicy ?? documentWithPolicy.featurePolicy;
+  try {
+    return policy ? !policy.allowsFeature("camera") : false;
+  } catch {
+    return false;
+  }
+}
+
+function getCameraErrorMessage(err: unknown) {
+  const e = err as DOMException;
+  if (cameraFeatureBlocked()) return "Camera is blocked in this embedded preview. Open the scanner in a new tab or install/open the app directly.";
+  if (e.name === "NotAllowedError" || e.name === "SecurityError") return "Camera permission denied. Tap the browser camera icon, allow camera access, then try again.";
+  if (e.name === "NotFoundError" || e.name === "DevicesNotFoundError") return "No camera found on this device.";
+  if (e.name === "NotReadableError" || e.name === "TrackStartError") return "Camera is already in use by another app. Close other camera apps and try again.";
+  if (e.name === "OverconstrainedError" || e.name === "ConstraintNotSatisfiedError") return "This camera mode is not available. Try switching cameras.";
+  return e.message ? `Could not access camera: ${e.message}` : "Could not access camera.";
+}
+
 function playBeep() {
   try {
     const Ctx = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
@@ -83,6 +114,7 @@ function ScannerPage() {
   const [facing, setFacing] = useState<"environment" | "user">("environment");
   const [fullscreen, setFullscreen] = useState(false);
   const [flash, setFlash] = useState<"success" | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
 
   useEffect(() => {
