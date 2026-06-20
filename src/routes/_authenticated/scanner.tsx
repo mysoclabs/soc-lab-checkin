@@ -518,8 +518,23 @@ function ScannerPage() {
                   </div>
                 )}
                 {!scanning && !processing && (
-                  <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-                    Camera is off
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-sm text-muted-foreground">
+                    {cameraError ? (
+                      <>
+                        <AlertTriangle className="h-9 w-9 text-warning" />
+                        <p className="max-w-sm font-medium text-foreground">{cameraError}</p>
+                        {isEmbeddedPreview() && (
+                          <Button
+                            variant="secondary"
+                            onClick={() => window.open("/scanner", "_blank", "noopener,noreferrer")}
+                          >
+                            Open scanner in new tab
+                          </Button>
+                        )}
+                      </>
+                    ) : (
+                      "Camera is off"
+                    )}
                   </div>
                 )}
 
