@@ -5,7 +5,8 @@ import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Printer, User } from "lucide-react";
+import { ArrowLeft, Download, Printer, RefreshCw, User } from "lucide-react";
+import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({
