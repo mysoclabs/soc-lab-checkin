@@ -52,6 +52,8 @@ function MyProfilePage() {
         <p className="text-sm text-muted-foreground">Your account details and QR code.</p>
       </div>
 
+      <TodayStatusCard email={email} />
+
       <Card>
         <CardContent className="p-6">
           {isLoading ? (
