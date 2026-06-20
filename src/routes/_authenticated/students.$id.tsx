@@ -154,10 +154,14 @@ function EmployeeProfile() {
             <div ref={printRef} className="rounded-lg bg-white p-3">
               {qrUrl ? <img src={qrUrl} alt="QR Code" width={224} height={224} /> : <div className="h-56 w-56" />}
             </div>
-            <p className="font-mono text-xs text-muted-foreground">{employee.student_id}</p>
+            <div className="text-center">
+              <p className="text-base font-semibold">{employee.name}</p>
+              <p className="font-mono text-xs text-muted-foreground">{employee.student_id}</p>
+            </div>
             <div className="flex w-full flex-col gap-2">
-              <Button onClick={handleDownload} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download</Button>
+              <Button onClick={handleDownload} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PNG</Button>
               <Button onClick={handlePrint}><Printer className="mr-2 h-4 w-4" /> Print ID Card</Button>
+              <Button onClick={handleRegenerate} variant="outline"><RefreshCw className="mr-2 h-4 w-4" /> Regenerate QR</Button>
             </div>
           </CardContent>
         </Card>
