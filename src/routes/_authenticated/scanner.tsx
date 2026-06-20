@@ -42,6 +42,38 @@ type Feedback = {
 
 type CamDevice = { id: string; label: string };
 
+function isEmbeddedPreview() {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+}
+
+function cameraFeatureBlocked() {
+  const documentWithPolicy = document as Document & {
+    permissionsPolicy?: { allowsFeature: (feature: string) => boolean };
+    featurePolicy?: { allowsFeature: (feature: string) => boolean };
+  };
+  const policy = documentWithPolicy.permissionsPolicy ?? documentWithPolicy.featurePolicy;
+  try {
+    return policy ? !policy.allowsFeature("camera") : false;
+  } catch {
+    return false;
+  }
+}
+
+function getCameraErrorMessage(err: unknown) {
+  const e = err as DOMException;
+  if (cameraFeatureBlocked()) return "Camera is blocked in this embedded preview. Open the scanner in a new tab or install/open the app directly.";
+  if (e.name === "NotAllowedError" || e.name === "SecurityError") return "Camera permission denied. Tap the browser camera icon, allow camera access, then try again.";
+  if (e.name === "NotFoundError" || e.name === "DevicesNotFoundError") return "No camera found on this device.";
+  if (e.name === "NotReadableError" || e.name === "TrackStartError") return "Camera is already in use by another app. Close other camera apps and try again.";
+  if (e.name === "OverconstrainedError" || e.name === "ConstraintNotSatisfiedError") return "This camera mode is not available. Try switching cameras.";
+  return e.message ? `Could not access camera: ${e.message}` : "Could not access camera.";
+}
+
 function playBeep() {
   try {
     const Ctx = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
@@ -83,6 +115,7 @@ function ScannerPage() {
   const [facing, setFacing] = useState<"environment" | "user">("environment");
   const [fullscreen, setFullscreen] = useState(false);
   const [flash, setFlash] = useState<"success" | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
 
   useEffect(() => {
@@ -90,18 +123,6 @@ function ScannerPage() {
       void stopScanner();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Enumerate cameras once granted
-  const loadCameras = useCallback(async () => {
-    try {
-      const devices = await Html5Qrcode.getCameras();
-      const list = devices.map((d) => ({ id: d.id, label: d.label || "Camera" }));
-      setCameras(list);
-      return list;
-    } catch {
-      return [];
-    }
   }, []);
 
   const stopScanner = async () => {
@@ -119,50 +140,30 @@ function ScannerPage() {
 
   const startScanner = useCallback(
     async (opts?: { cameraId?: string; facing?: "environment" | "user" }) => {
+      setCameraError(null);
       if (scannerRef.current) await stopScanner();
 
       // Pre-flight checks
       if (typeof window !== "undefined" && !window.isSecureContext) {
-        toast.error("Camera requires HTTPS. Open this page over a secure connection.");
+        const message = "Camera requires HTTPS. Open this page over a secure connection.";
+        setCameraError(message);
+        toast.error(message);
         return;
       }
       if (!navigator.mediaDevices?.getUserMedia) {
-        toast.error("This browser does not support camera access.");
+        const message = "This browser does not support camera access.";
+        setCameraError(message);
+        toast.error(message);
+        return;
+      }
+      if (cameraFeatureBlocked()) {
+        const message = "Camera is blocked in this embedded preview. Open the scanner in a new tab or install/open the app directly.";
+        setCameraError(message);
+        toast.error(message);
         return;
       }
 
       const useFacing = opts?.facing ?? facing;
-
-      // Step 1: request permission synchronously within the user gesture, so labels become available
-      let permissionStream: MediaStream | null = null;
-      try {
-        permissionStream = await navigator.mediaDevices.getUserMedia({
-          video: opts?.cameraId
-            ? { deviceId: { exact: opts.cameraId } }
-            : { facingMode: { ideal: useFacing } },
-        });
-      } catch (err) {
-        const e = err as DOMException;
-        if (e.name === "NotAllowedError" || e.name === "SecurityError") {
-          toast.error("Camera permission denied. Enable it in your browser settings and reload.");
-        } else if (e.name === "NotFoundError" || e.name === "OverconstrainedError") {
-          // Retry without facingMode constraint (desktops often have only a front cam)
-          try {
-            permissionStream = await navigator.mediaDevices.getUserMedia({ video: true });
-          } catch {
-            toast.error("No camera found on this device.");
-            return;
-          }
-        } else if (e.name === "NotReadableError") {
-          toast.error("Camera is in use by another app. Close it and try again.");
-          return;
-        } else {
-          toast.error(`Could not access camera: ${e.message || e.name}`);
-          return;
-        }
-      }
-      // Release the probe stream — html5-qrcode will open its own
-      permissionStream?.getTracks().forEach((t) => t.stop());
 
       try {
         const elementId = "qr-reader";
@@ -171,21 +172,8 @@ function ScannerPage() {
         const scanner = new Html5Qrcode(elementId, { verbose: false });
         scannerRef.current = scanner;
 
-        // Enumerate now that permission was granted
-        const list = await loadCameras();
-
-        // Choose camera: explicit > current active > rear preference > first available
-        let cameraSource: MediaTrackConstraints | string;
-        let chosenId: string | null = opts?.cameraId ?? null;
-        if (!chosenId && list.length) {
-          const rear = list.find((c) => /back|rear|environment/i.test(c.label));
-          chosenId = (rear ?? list[0]).id;
-        }
-        if (chosenId) {
-          cameraSource = chosenId;
-        } else {
-          cameraSource = { facingMode: { ideal: useFacing } } as MediaTrackConstraints;
-        }
+        const chosenId = opts?.cameraId ?? null;
+        const cameraSource = chosenId || ({ facingMode: { ideal: useFacing } } as MediaTrackConstraints);
 
         const qrbox = (vw: number, vh: number) => {
           const minEdge = Math.min(vw, vh);
@@ -201,14 +189,39 @@ function ScannerPage() {
         );
         setScanning(true);
         if (chosenId) setActiveCamId(chosenId);
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Could not access camera";
-        toast.error(msg);
-        scannerRef.current = null;
-        setScanning(false);
+        const rawDevices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+        const list = rawDevices
+          .filter((device) => device.kind === "videoinput" && device.deviceId)
+          .map((device, index) => ({ id: device.deviceId, label: device.label || `Camera ${index + 1}` }));
+        if (list.length) {
+          setCameras(list);
+          if (!chosenId) setActiveCamId(list.find((c) => /back|rear|environment/i.test(c.label))?.id ?? list[0].id);
+        }
+      } catch {
+        try {
+          await scannerRef.current?.clear();
+          const scanner = new Html5Qrcode("qr-reader", { verbose: false });
+          scannerRef.current = scanner;
+          await scanner.start(
+            { facingMode: useFacing } as MediaTrackConstraints,
+            { fps: 10, qrbox: (vw, vh) => {
+              const size = Math.floor(Math.min(vw, vh) * 0.75);
+              return { width: size, height: size };
+            } },
+            (decoded) => void handleDecoded(decoded),
+            () => {},
+          );
+          setScanning(true);
+        } catch (fallbackErr) {
+          const msg = getCameraErrorMessage(fallbackErr);
+          setCameraError(msg);
+          toast.error(msg);
+          scannerRef.current = null;
+          setScanning(false);
+        }
       }
     },
-    [activeCamId, facing, loadCameras],
+    [facing],
   );
 
   const switchCamera = async () => {
@@ -497,8 +510,23 @@ function ScannerPage() {
                   </div>
                 )}
                 {!scanning && !processing && (
-                  <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
-                    Camera is off
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center text-sm text-muted-foreground">
+                    {cameraError ? (
+                      <>
+                        <AlertTriangle className="h-9 w-9 text-warning" />
+                        <p className="max-w-sm font-medium text-foreground">{cameraError}</p>
+                        {isEmbeddedPreview() && (
+                          <Button
+                            variant="secondary"
+                            onClick={() => window.open(window.location.href, "_blank", "noopener,noreferrer")}
+                          >
+                            Open scanner in new tab
+                          </Button>
+                        )}
+                      </>
+                    ) : (
+                      "Camera is off"
+                    )}
                   </div>
                 )}
 
