@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { logAudit, notify } from "@/lib/audit";
 
 export const Route = createFileRoute("/_authenticated/leaves")({
   head: () => ({ meta: [{ title: "Leave Management · MySOC Labs" }] }),
@@ -129,6 +130,26 @@ function LeavesAdminPage() {
         })
         .eq("id", reviewTarget.row.id);
       if (error) throw error;
+
+      const row = reviewTarget.row;
+      await logAudit({
+        action: `leave_${reviewTarget.action}`,
+        entity: "leave_request",
+        entity_id: row.id,
+        details: { employee: row.students?.name, type: row.leave_type, dates: `${row.start_date} → ${row.end_date}`, comment: comment.trim() || null },
+      });
+      // Look up employee's user_id for notification
+      const { data: lr } = await supabase.from("leave_requests").select("user_id").eq("id", row.id).maybeSingle();
+      if (lr?.user_id) {
+        await notify({
+          audience: "user",
+          user_id: lr.user_id,
+          type: `leave_${reviewTarget.action}`,
+          title: `Leave ${reviewTarget.action}`,
+          message: `${TYPE_LABEL[row.leave_type]} (${row.start_date} → ${row.end_date})${comment.trim() ? ` — ${comment.trim()}` : ""}`,
+          link: "/my-leaves",
+        });
+      }
     },
     onSuccess: () => {
       toast.success(`Leave ${reviewTarget?.action}`);
