@@ -172,24 +172,8 @@ function ScannerPage() {
         const scanner = new Html5Qrcode(elementId, { verbose: false });
         scannerRef.current = scanner;
 
-        const rawDevices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
-        const list = rawDevices
-          .filter((device) => device.kind === "videoinput")
-          .map((device, index) => ({ id: device.deviceId, label: device.label || `Camera ${index + 1}` }));
-        if (list.length) setCameras(list);
-
-        // Choose camera: explicit > current active > rear preference > first available
-        let cameraSource: MediaTrackConstraints | string;
-        let chosenId: string | null = opts?.cameraId ?? null;
-        if (!chosenId && list.length) {
-          const rear = list.find((c) => /back|rear|environment/i.test(c.label));
-          chosenId = (rear ?? list[0]).id;
-        }
-        if (chosenId && list.some((c) => c.id === chosenId)) {
-          cameraSource = chosenId;
-        } else {
-          cameraSource = { facingMode: { ideal: useFacing } } as MediaTrackConstraints;
-        }
+        const chosenId = opts?.cameraId ?? null;
+        const cameraSource = chosenId || ({ facingMode: { ideal: useFacing } } as MediaTrackConstraints);
 
         const qrbox = (vw: number, vh: number) => {
           const minEdge = Math.min(vw, vh);
@@ -205,6 +189,14 @@ function ScannerPage() {
         );
         setScanning(true);
         if (chosenId) setActiveCamId(chosenId);
+        const rawDevices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+        const list = rawDevices
+          .filter((device) => device.kind === "videoinput" && device.deviceId)
+          .map((device, index) => ({ id: device.deviceId, label: device.label || `Camera ${index + 1}` }));
+        if (list.length) {
+          setCameras(list);
+          if (!chosenId) setActiveCamId(list.find((c) => /back|rear|environment/i.test(c.label))?.id ?? list[0].id);
+        }
       } catch {
         try {
           await scannerRef.current?.clear();
