@@ -16,6 +16,7 @@ import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedMyQrRouteImport } from './routes/_authenticated/my-qr'
 import { Route as AuthenticatedMyLeavesRouteImport } from './routes/_authenticated/my-leaves'
 import { Route as AuthenticatedMyAttendanceRouteImport } from './routes/_authenticated/my-attendance'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
@@ -60,6 +61,11 @@ const AuthenticatedScannerRoute = AuthenticatedScannerRouteImport.update({
 const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyQrRoute = AuthenticatedMyQrRouteImport.update({
+  id: '/my-qr',
+  path: '/my-qr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMyLeavesRoute = AuthenticatedMyLeavesRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/me': typeof AuthenticatedMeRoute
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
   '/my-leaves': typeof AuthenticatedMyLeavesRoute
+  '/my-qr': typeof AuthenticatedMyQrRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/shifts': typeof AuthenticatedShiftsRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/me': typeof AuthenticatedMeRoute
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
   '/my-leaves': typeof AuthenticatedMyLeavesRoute
+  '/my-qr': typeof AuthenticatedMyQrRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/shifts': typeof AuthenticatedShiftsRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/_authenticated/me': typeof AuthenticatedMeRoute
   '/_authenticated/my-attendance': typeof AuthenticatedMyAttendanceRoute
   '/_authenticated/my-leaves': typeof AuthenticatedMyLeavesRoute
+  '/_authenticated/my-qr': typeof AuthenticatedMyQrRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/scanner': typeof AuthenticatedScannerRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/me'
     | '/my-attendance'
     | '/my-leaves'
+    | '/my-qr'
     | '/reports'
     | '/scanner'
     | '/shifts'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/me'
     | '/my-attendance'
     | '/my-leaves'
+    | '/my-qr'
     | '/reports'
     | '/scanner'
     | '/shifts'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/_authenticated/me'
     | '/_authenticated/my-attendance'
     | '/_authenticated/my-leaves'
+    | '/_authenticated/my-qr'
     | '/_authenticated/reports'
     | '/_authenticated/scanner'
     | '/_authenticated/shifts'
@@ -295,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-qr': {
+      id: '/_authenticated/my-qr'
+      path: '/my-qr'
+      fullPath: '/my-qr'
+      preLoaderRoute: typeof AuthenticatedMyQrRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/my-leaves': {
@@ -386,6 +405,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMeRoute: typeof AuthenticatedMeRoute
   AuthenticatedMyAttendanceRoute: typeof AuthenticatedMyAttendanceRoute
   AuthenticatedMyLeavesRoute: typeof AuthenticatedMyLeavesRoute
+  AuthenticatedMyQrRoute: typeof AuthenticatedMyQrRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedScannerRoute: typeof AuthenticatedScannerRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
@@ -405,6 +425,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMeRoute: AuthenticatedMeRoute,
   AuthenticatedMyAttendanceRoute: AuthenticatedMyAttendanceRoute,
   AuthenticatedMyLeavesRoute: AuthenticatedMyLeavesRoute,
+  AuthenticatedMyQrRoute: AuthenticatedMyQrRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedScannerRoute: AuthenticatedScannerRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
