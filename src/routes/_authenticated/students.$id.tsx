@@ -5,7 +5,8 @@ import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Printer, User } from "lucide-react";
+import { ArrowLeft, Download, Printer, RefreshCw, User } from "lucide-react";
+import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/students/$id")({
 function EmployeeProfile() {
   const { id } = useParams({ from: "/_authenticated/students/$id" });
   const [qrUrl, setQrUrl] = useState<string>("");
+  const [qrVersion, setQrVersion] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -45,7 +47,24 @@ function EmployeeProfile() {
     } else {
       setPhotoUrl(null);
     }
-  }, [employee]);
+  }, [employee, qrVersion]);
+
+  const handleRegenerate = async () => {
+    if (!employee) return;
+    try {
+      const url = await QRCode.toDataURL(employee.student_id, {
+        width: 512,
+        margin: 2,
+        errorCorrectionLevel: "H",
+        color: { dark: "#0b1220", light: "#ffffff" },
+      });
+      setQrUrl(url);
+      setQrVersion((v) => v + 1);
+      toast.success("QR code regenerated");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to regenerate");
+    }
+  };
 
   const handleDownload = () => {
     if (!qrUrl || !employee) return;
@@ -135,10 +154,14 @@ function EmployeeProfile() {
             <div ref={printRef} className="rounded-lg bg-white p-3">
               {qrUrl ? <img src={qrUrl} alt="QR Code" width={224} height={224} /> : <div className="h-56 w-56" />}
             </div>
-            <p className="font-mono text-xs text-muted-foreground">{employee.student_id}</p>
+            <div className="text-center">
+              <p className="text-base font-semibold">{employee.name}</p>
+              <p className="font-mono text-xs text-muted-foreground">{employee.student_id}</p>
+            </div>
             <div className="flex w-full flex-col gap-2">
-              <Button onClick={handleDownload} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download</Button>
+              <Button onClick={handleDownload} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PNG</Button>
               <Button onClick={handlePrint}><Printer className="mr-2 h-4 w-4" /> Print ID Card</Button>
+              <Button onClick={handleRegenerate} variant="outline"><RefreshCw className="mr-2 h-4 w-4" /> Regenerate QR</Button>
             </div>
           </CardContent>
         </Card>

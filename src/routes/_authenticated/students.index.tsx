@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye, Upload, User } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Upload, User, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { RoleGuard } from "@/components/role-guard";
@@ -202,10 +202,14 @@ function EmployeesPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Employees</h1>
           <p className="text-sm text-muted-foreground">Manage employees and their profiles.</p>
         </div>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
-          <DialogTrigger asChild>
-            <Button onClick={openAdd}><Plus className="mr-1 h-4 w-4" /> Add Employee</Button>
-          </DialogTrigger>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/students/bulk-qr"><QrCode className="mr-1 h-4 w-4" /> Bulk QR</Link>
+          </Button>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
+            <DialogTrigger asChild>
+              <Button onClick={openAdd}><Plus className="mr-1 h-4 w-4" /> Add Employee</Button>
+            </DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Employee" : "Add Employee"}</DialogTitle>
@@ -271,6 +275,7 @@ function EmployeesPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card>
