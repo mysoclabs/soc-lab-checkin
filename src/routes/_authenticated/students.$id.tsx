@@ -21,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/students/$id")({
 function EmployeeProfile() {
   const { id } = useParams({ from: "/_authenticated/students/$id" });
   const [qrUrl, setQrUrl] = useState<string>("");
+  const [qrVersion, setQrVersion] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +47,24 @@ function EmployeeProfile() {
     } else {
       setPhotoUrl(null);
     }
-  }, [employee]);
+  }, [employee, qrVersion]);
+
+  const handleRegenerate = async () => {
+    if (!employee) return;
+    try {
+      const url = await QRCode.toDataURL(employee.student_id, {
+        width: 512,
+        margin: 2,
+        errorCorrectionLevel: "H",
+        color: { dark: "#0b1220", light: "#ffffff" },
+      });
+      setQrUrl(url);
+      setQrVersion((v) => v + 1);
+      toast.success("QR code regenerated");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to regenerate");
+    }
+  };
 
   const handleDownload = () => {
     if (!qrUrl || !employee) return;
