@@ -212,6 +212,64 @@ function Dashboard() {
         <StatCard title="Rejected Leaves" value={leaveStats?.rejected ?? 0} icon={UserX} tone="bg-destructive/15 text-destructive" />
       </div>
 
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><PartyPopper className="h-4 w-4" /> Upcoming Holidays</CardTitle></CardHeader>
+          <CardContent>
+            {upcomingHolidays.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No upcoming holidays.</p>
+            ) : (
+              <ul className="space-y-2">
+                {upcomingHolidays.map((h) => (
+                  <li key={h.id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{h.name}</span>
+                    <span className="text-muted-foreground">{format(new Date(h.date), "MMM d")}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarDays className="h-4 w-4" /> Employees On Leave Today</CardTitle></CardHeader>
+          <CardContent>
+            {employeesOnLeave.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nobody on leave today.</p>
+            ) : (
+              <ul className="space-y-2">
+                {employeesOnLeave.map((l) => (
+                  <li key={l.id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{l.students?.name ?? "—"}</span>
+                    <Badge variant="secondary" className="capitalize">{l.leave_type}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Clock className="h-4 w-4" /> Shift Summary</CardTitle></CardHeader>
+          <CardContent>
+            {shiftSummary.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No shift assignments yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {shiftSummary.map((s, i) => (
+                  <li key={i} className="flex items-center justify-between text-sm">
+                    <span><span className="font-medium">{s.name}</span> <span className="text-xs text-muted-foreground">{s.time}</span></span>
+                    <Badge variant="secondary">{s.count}</Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
