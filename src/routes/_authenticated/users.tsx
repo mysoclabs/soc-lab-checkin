@@ -50,7 +50,12 @@ function UsersPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (vars: { userId: string; role: AppRole }) => setRoleFn({ data: vars }),
+    mutationFn: async (vars: { userId: string; role: AppRole }) => {
+      const res = await setRoleFn({ data: vars });
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({ action: "role_changed", entity: "user", entity_id: vars.userId, details: { role: vars.role } });
+      return res;
+    },
     onSuccess: () => {
       toast.success("Role updated");
       qc.invalidateQueries({ queryKey: ["app-users"] });
@@ -62,7 +67,12 @@ function UsersPage() {
   const [form, setForm] = useState({ email: "", password: "", role: "employee" as AppRole });
 
   const createMutation = useMutation({
-    mutationFn: () => createFn({ data: form }),
+    mutationFn: async () => {
+      const res = await createFn({ data: form });
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({ action: "user_created", entity: "user", details: { email: form.email, role: form.role } });
+      return res;
+    },
     onSuccess: () => {
       toast.success("User created");
       setOpen(false);
