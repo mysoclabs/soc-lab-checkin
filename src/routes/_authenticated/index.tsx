@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, UserX, Clock, Activity, CalendarDays } from "lucide-react";
+import { Users, UserCheck, UserX, Clock, Activity, CalendarDays, PartyPopper } from "lucide-react";
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, eachDayOfInterval } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -143,6 +143,44 @@ function Dashboard() {
         approved: rows.filter((r) => r.status === "approved").length,
         rejected: rows.filter((r) => r.status === "rejected").length,
       };
+    },
+  });
+
+  const { data: upcomingHolidays = [] } = useQuery({
+    queryKey: ["upcoming-holidays"],
+    queryFn: async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      const { data } = await supabase.from("holidays").select("*").gte("date", today).order("date").limit(5);
+      return data ?? [];
+    },
+  });
+
+  const { data: employeesOnLeave = [] } = useQuery({
+    queryKey: ["employees-on-leave"],
+    queryFn: async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      const { data } = await supabase
+        .from("leave_requests")
+        .select("id, leave_type, students:employee_id(name, student_id)")
+        .eq("status", "approved")
+        .lte("start_date", today)
+        .gte("end_date", today);
+      return data ?? [];
+    },
+  });
+
+  const { data: shiftSummary = [] } = useQuery({
+    queryKey: ["shift-summary"],
+    queryFn: async () => {
+      const { data } = await supabase.from("employee_shifts").select("shift_id, shifts(name, start_time, end_time)");
+      const map = new Map<string, { name: string; time: string; count: number }>();
+      for (const row of (data ?? []) as Array<{ shift_id: string; shifts: { name: string; start_time: string; end_time: string } | null }>) {
+        if (!row.shifts) continue;
+        const cur = map.get(row.shift_id) ?? { name: row.shifts.name, time: `${row.shifts.start_time.slice(0,5)}–${row.shifts.end_time.slice(0,5)}`, count: 0 };
+        cur.count += 1;
+        map.set(row.shift_id, cur);
+      }
+      return Array.from(map.values());
     },
   });
 
