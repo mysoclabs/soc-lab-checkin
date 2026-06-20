@@ -24,7 +24,7 @@ const items: NavItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ["super_admin", "hr_admin"] },
   { title: "Employees", url: "/students", icon: Users, roles: ["super_admin", "hr_admin"] },
   { title: "Attendance", url: "/attendance", icon: ClipboardCheck, roles: ["super_admin", "hr_admin"] },
-  { title: "QR Scanner", url: "/scanner", icon: ScanLine, roles: ["super_admin", "hr_admin"] },
+  { title: "QR Scanner", url: "/scanner", icon: ScanLine, roles: ["super_admin", "hr_admin", "founder"] },
   { title: "Reports", url: "/reports", icon: FileBarChart2, roles: ["super_admin", "hr_admin"] },
   { title: "Leave Management", url: "/leaves", icon: CalendarDays, roles: ["super_admin", "hr_admin"] },
   { title: "Holidays", url: "/holidays", icon: PartyPopper, roles: ["super_admin", "hr_admin"] },
@@ -33,6 +33,7 @@ const items: NavItem[] = [
   { title: "Audit Logs", url: "/audit-logs", icon: Shield, roles: ["super_admin", "hr_admin"] },
   { title: "Finance", url: "/finance", icon: Wallet, roles: ["super_admin", "founder", "finance"] },
   { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee", "founder", "finance"] },
+  { title: "My QR", url: "/my-qr", icon: QrCode, roles: ["employee", "founder", "finance", "hr_admin", "super_admin"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
   { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin", "super_admin"] },
 ];
