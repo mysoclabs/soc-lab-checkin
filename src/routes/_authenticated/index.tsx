@@ -10,6 +10,7 @@ import {
 } from "recharts";
 
 import { RoleGuard } from "@/components/role-guard";
+import { OfficeTimingCard } from "@/components/office-timing-card";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({ meta: [{ title: "Dashboard · MySOC Labs Attendance" }] }),
