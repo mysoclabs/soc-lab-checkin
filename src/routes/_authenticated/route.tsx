@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { NotificationBell } from "@/components/notification-bell";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -22,6 +23,7 @@ function AuthedLayout() {
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
             <div className="text-sm font-medium text-muted-foreground">MySOC Labs · Attendance Admin</div>
+            <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="flex-1 p-4 md:p-6">
             <Outlet />
