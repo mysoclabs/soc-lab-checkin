@@ -518,7 +518,7 @@ function ScannerPage() {
                         {isEmbeddedPreview() && (
                           <Button
                             variant="secondary"
-                            onClick={() => window.open("/scanner", "_blank", "noopener,noreferrer")}
+                            onClick={() => window.open(window.location.href, "_blank", "noopener,noreferrer")}
                           >
                             Open scanner in new tab
                           </Button>
