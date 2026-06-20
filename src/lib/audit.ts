@@ -30,7 +30,7 @@ export async function logAudit(entry: AuditEntry): Promise<void> {
       action: entry.action,
       entity: entry.entity,
       entity_id: entry.entity_id ?? null,
-      details: entry.details ?? null,
+      details: (entry.details ?? null) as never,
       ip_address: ip,
     });
   } catch (err) {
