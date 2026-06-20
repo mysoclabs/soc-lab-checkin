@@ -25,6 +25,7 @@ import { Route as AuthenticatedFinanceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
+import { Route as AuthenticatedStudentsBulkQrRouteImport } from './routes/_authenticated/students.bulk-qr'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -108,6 +109,12 @@ const AuthenticatedStudentsIndexRoute =
     path: '/students/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedStudentsBulkQrRoute =
+  AuthenticatedStudentsBulkQrRouteImport.update({
+    id: '/students/bulk-qr',
+    path: '/students/bulk-qr',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
   id: '/students/$id',
   path: '/students/$id',
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/shifts': typeof AuthenticatedShiftsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/students/': typeof AuthenticatedStudentsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -148,6 +156,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersRoute
   '/': typeof AuthenticatedIndexRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/students': typeof AuthenticatedStudentsIndexRoute
 }
 export interface FileRoutesById {
@@ -168,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/_authenticated/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
 }
 export interface FileRouteTypes {
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/shifts'
     | '/users'
     | '/students/$id'
+    | '/students/bulk-qr'
     | '/students/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/'
     | '/students/$id'
+    | '/students/bulk-qr'
     | '/students'
   id:
     | '__root__'
@@ -225,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users'
     | '/_authenticated/'
     | '/_authenticated/students/$id'
+    | '/_authenticated/students/bulk-qr'
     | '/_authenticated/students/'
   fileRoutesById: FileRoutesById
 }
@@ -347,6 +360,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/students/bulk-qr': {
+      id: '/_authenticated/students/bulk-qr'
+      path: '/students/bulk-qr'
+      fullPath: '/students/bulk-qr'
+      preLoaderRoute: typeof AuthenticatedStudentsBulkQrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/students/$id': {
       id: '/_authenticated/students/$id'
       path: '/students/$id'
@@ -372,6 +392,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedStudentsIdRoute: typeof AuthenticatedStudentsIdRoute
+  AuthenticatedStudentsBulkQrRoute: typeof AuthenticatedStudentsBulkQrRoute
   AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
 }
 
@@ -390,6 +411,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedStudentsIdRoute: AuthenticatedStudentsIdRoute,
+  AuthenticatedStudentsBulkQrRoute: AuthenticatedStudentsBulkQrRoute,
   AuthenticatedStudentsIndexRoute: AuthenticatedStudentsIndexRoute,
 }
 

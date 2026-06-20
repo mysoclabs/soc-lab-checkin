@@ -14,7 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye, Upload, User } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Upload, User, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { RoleGuard } from "@/components/role-guard";
