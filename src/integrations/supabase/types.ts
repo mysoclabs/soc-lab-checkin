@@ -130,6 +130,39 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          expense_date: string
+          id: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       holidays: {
         Row: {
           created_at: string
@@ -156,6 +189,45 @@ export type Database = {
           id?: string
           name?: string
           type?: Database["public"]["Enums"]["holiday_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          client_name: string
+          created_at: string
+          due_date: string
+          id: string
+          invoice_number: string
+          issue_date: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          client_name: string
+          created_at?: string
+          due_date: string
+          id?: string
+          invoice_number: string
+          issue_date?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_name?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          notes?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -249,6 +321,95 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      payroll: {
+        Row: {
+          amount: number
+          created_at: string
+          employee_id: string | null
+          employee_name: string
+          employee_type: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          period_month: number
+          period_year: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          employee_id?: string | null
+          employee_name: string
+          employee_type?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period_month: number
+          period_year: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          employee_id?: string | null
+          employee_name?: string
+          employee_type?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period_month?: number
+          period_year?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      revenues: {
+        Row: {
+          amount: number
+          client_name: string | null
+          created_at: string
+          description: string | null
+          id: string
+          revenue_date: string
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          client_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          revenue_date?: string
+          source: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          revenue_date?: string
+          source?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -357,6 +518,7 @@ export type Database = {
     }
     Functions: {
       generate_student_id: { Args: never; Returns: string }
+      has_finance_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -366,7 +528,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "super_admin" | "hr_admin" | "employee"
+      app_role: "super_admin" | "hr_admin" | "employee" | "founder" | "finance"
       holiday_type: "public" | "company"
       leave_status: "pending" | "approved" | "rejected"
       leave_type: "casual" | "sick" | "emergency" | "wfh"
@@ -497,7 +659,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["super_admin", "hr_admin", "employee"],
+      app_role: ["super_admin", "hr_admin", "employee", "founder", "finance"],
       holiday_type: ["public", "company"],
       leave_status: ["pending", "approved", "rejected"],
       leave_type: ["casual", "sick", "emergency", "wfh"],
