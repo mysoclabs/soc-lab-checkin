@@ -163,6 +163,11 @@ function ScannerPage() {
           status,
         });
         toast.success(`Welcome, ${employee.name}!${status === "late" ? " (Late)" : ""}`);
+        const { logAudit, notify } = await import("@/lib/audit");
+        await logAudit({ action: "attendance_check_in", entity: "attendance", entity_id: employee.id, details: { name: employee.name, status, time: checkIn.toISOString() } });
+        if (status === "late") {
+          await notify({ audience: "admins", type: "late_check_in", title: "Late check-in", message: `${employee.name} checked in at ${format(checkIn, "h:mm a")}`, link: "/attendance" });
+        }
         return;
       }
 
@@ -203,6 +208,12 @@ function ScannerPage() {
         hours: hoursLabel,
       });
       toast.success(`Goodbye, ${employee.name}! (${hoursLabel})`);
+      const { logAudit, notify } = await import("@/lib/audit");
+      await logAudit({ action: "attendance_check_out", entity: "attendance", entity_id: employee.id, details: { name: employee.name, hours: hoursLabel, time: checkOut.toISOString() } });
+      // Early checkout if before 6:00 PM
+      if (checkOut.getHours() < 18) {
+        await notify({ audience: "admins", type: "early_check_out", title: "Early check-out", message: `${employee.name} checked out at ${format(checkOut, "h:mm a")} (${hoursLabel})`, link: "/attendance" });
+      }
     } finally {
       setProcessing(false);
     }
