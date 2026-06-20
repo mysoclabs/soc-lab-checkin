@@ -43,6 +43,7 @@ type Feedback = {
 type CamDevice = { id: string; label: string };
 
 function isEmbeddedPreview() {
+  if (typeof window === "undefined") return false;
   try {
     return window.self !== window.top;
   } catch {
@@ -122,18 +123,6 @@ function ScannerPage() {
       void stopScanner();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Enumerate cameras once granted
-  const loadCameras = useCallback(async () => {
-    try {
-      const devices = await Html5Qrcode.getCameras();
-      const list = devices.map((d) => ({ id: d.id, label: d.label || "Camera" }));
-      setCameras(list);
-      return list;
-    } catch {
-      return [];
-    }
   }, []);
 
   const stopScanner = async () => {
@@ -216,7 +205,7 @@ function ScannerPage() {
         );
         setScanning(true);
         if (chosenId) setActiveCamId(chosenId);
-      } catch (err) {
+      } catch {
         try {
           await scannerRef.current?.clear();
           const scanner = new Html5Qrcode("qr-reader", { verbose: false });
@@ -240,7 +229,7 @@ function ScannerPage() {
         }
       }
     },
-    [activeCamId, facing, loadCameras],
+    [facing],
   );
 
   const switchCamera = async () => {
