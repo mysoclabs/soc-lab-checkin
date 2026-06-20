@@ -95,6 +95,21 @@ function ScannerPage() {
       }
 
       const today = format(new Date(), "yyyy-MM-dd");
+
+      // Block on weekends / holidays
+      const dow = new Date().getDay();
+      if (dow === 0 || dow === 6) {
+        setFeedback({ kind: "error", message: "Today is a weekend — attendance not tracked." });
+        toast.warning("Weekend: attendance not tracked");
+        return;
+      }
+      const { data: holiday } = await supabase.from("holidays").select("name").eq("date", today).maybeSingle();
+      if (holiday) {
+        setFeedback({ kind: "error", message: `Today is a holiday: ${holiday.name}` });
+        toast.warning(`Holiday: ${holiday.name}`);
+        return;
+      }
+
       const { data: existing } = await supabase
         .from("attendance")
         .select("id, check_in, check_out, status")
@@ -105,8 +120,30 @@ function ScannerPage() {
       // Case 1: no record yet → Check-In
       if (!existing) {
         const checkIn = new Date();
-        const lateCutoff = "09:30:00";
-        const status = checkIn.toTimeString().slice(0, 8) > lateCutoff ? "late" : "present";
+
+        // Resolve employee's current shift (most recent effective_from <= today), fallback to default
+        const { data: assigned } = await supabase
+          .from("employee_shifts")
+          .select("shifts(start_time, late_cutoff_minutes)")
+          .eq("employee_id", employee.id)
+          .lte("effective_from", today)
+          .order("effective_from", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        let startTime = "09:30:00";
+        let grace = 0;
+        const shift = (assigned as { shifts: { start_time: string; late_cutoff_minutes: number } | null } | null)?.shifts;
+        if (shift) {
+          startTime = shift.start_time;
+          grace = shift.late_cutoff_minutes ?? 0;
+        } else {
+          const { data: def } = await supabase.from("shifts").select("start_time, late_cutoff_minutes").eq("is_default", true).maybeSingle();
+          if (def) { startTime = def.start_time; grace = def.late_cutoff_minutes ?? 0; }
+        }
+        const [h, m] = startTime.split(":").map(Number);
+        const cutoff = new Date(checkIn);
+        cutoff.setHours(h, m + grace, 0, 0);
+        const status = checkIn > cutoff ? "late" : "present";
         const { error: iErr } = await supabase.from("attendance").insert({
           student_id: employee.id,
           date: today,
