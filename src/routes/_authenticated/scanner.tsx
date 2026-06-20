@@ -120,6 +120,50 @@ function ScannerPage() {
   const startScanner = useCallback(
     async (opts?: { cameraId?: string; facing?: "environment" | "user" }) => {
       if (scannerRef.current) await stopScanner();
+
+      // Pre-flight checks
+      if (typeof window !== "undefined" && !window.isSecureContext) {
+        toast.error("Camera requires HTTPS. Open this page over a secure connection.");
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        toast.error("This browser does not support camera access.");
+        return;
+      }
+
+      const useFacing = opts?.facing ?? facing;
+
+      // Step 1: request permission synchronously within the user gesture, so labels become available
+      let permissionStream: MediaStream | null = null;
+      try {
+        permissionStream = await navigator.mediaDevices.getUserMedia({
+          video: opts?.cameraId
+            ? { deviceId: { exact: opts.cameraId } }
+            : { facingMode: { ideal: useFacing } },
+        });
+      } catch (err) {
+        const e = err as DOMException;
+        if (e.name === "NotAllowedError" || e.name === "SecurityError") {
+          toast.error("Camera permission denied. Enable it in your browser settings and reload.");
+        } else if (e.name === "NotFoundError" || e.name === "OverconstrainedError") {
+          // Retry without facingMode constraint (desktops often have only a front cam)
+          try {
+            permissionStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          } catch {
+            toast.error("No camera found on this device.");
+            return;
+          }
+        } else if (e.name === "NotReadableError") {
+          toast.error("Camera is in use by another app. Close it and try again.");
+          return;
+        } else {
+          toast.error(`Could not access camera: ${e.message || e.name}`);
+          return;
+        }
+      }
+      // Release the probe stream — html5-qrcode will open its own
+      permissionStream?.getTracks().forEach((t) => t.stop());
+
       try {
         const elementId = "qr-reader";
         const el = document.getElementById(elementId);
@@ -127,11 +171,22 @@ function ScannerPage() {
         const scanner = new Html5Qrcode(elementId, { verbose: false });
         scannerRef.current = scanner;
 
-        const useFacing = opts?.facing ?? facing;
-        const cameraSource: MediaTrackConstraints | string =
-          opts?.cameraId ?? (activeCamId ?? { facingMode: { ideal: useFacing } } as MediaTrackConstraints);
+        // Enumerate now that permission was granted
+        const list = await loadCameras();
 
-        // Adaptive qrbox sized to viewport
+        // Choose camera: explicit > current active > rear preference > first available
+        let cameraSource: MediaTrackConstraints | string;
+        let chosenId: string | null = opts?.cameraId ?? null;
+        if (!chosenId && list.length) {
+          const rear = list.find((c) => /back|rear|environment/i.test(c.label));
+          chosenId = (rear ?? list[0]).id;
+        }
+        if (chosenId) {
+          cameraSource = chosenId;
+        } else {
+          cameraSource = { facingMode: { ideal: useFacing } } as MediaTrackConstraints;
+        }
+
         const qrbox = (vw: number, vh: number) => {
           const minEdge = Math.min(vw, vh);
           const size = Math.floor(minEdge * 0.75);
@@ -145,21 +200,10 @@ function ScannerPage() {
           () => {},
         );
         setScanning(true);
-
-        // After permission grant, enumerate (labels become available)
-        const list = await loadCameras();
-        if (!activeCamId && opts?.cameraId) setActiveCamId(opts.cameraId);
-        else if (!activeCamId && list.length) {
-          // best-guess current
-          const rear = list.find((c) => /back|rear|environment/i.test(c.label));
-          setActiveCamId((rear ?? list[0]).id);
-        }
+        if (chosenId) setActiveCamId(chosenId);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Could not access camera";
         toast.error(msg);
-        if (/permission|denied|NotAllowed/i.test(msg)) {
-          toast.error("Camera permission denied. Enable it in your browser settings.");
-        }
         scannerRef.current = null;
         setScanning(false);
       }
