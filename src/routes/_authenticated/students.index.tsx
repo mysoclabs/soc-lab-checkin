@@ -138,7 +138,11 @@ function EmployeesPage() {
       qc.invalidateQueries({ queryKey: ["employees"] });
       qc.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
+    onError: (err) => {
+      console.error("Add employee failed:", err);
+      const msg = err instanceof Error ? err.message : JSON.stringify(err);
+      toast.error(msg || "Failed");
+    },
   });
 
   const remove = useMutation({
