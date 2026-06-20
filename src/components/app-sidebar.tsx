@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode,
+  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode, Settings,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
@@ -30,6 +30,7 @@ const items: NavItem[] = [
   { title: "Holidays", url: "/holidays", icon: PartyPopper, roles: ["super_admin", "hr_admin"] },
   { title: "Shifts", url: "/shifts", icon: Clock, roles: ["super_admin", "hr_admin"] },
   { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
+  { title: "Office Settings", url: "/office-settings", icon: Settings, roles: ["super_admin", "hr_admin"] },
   { title: "Audit Logs", url: "/audit-logs", icon: Shield, roles: ["super_admin", "hr_admin"] },
   { title: "Finance", url: "/finance", icon: Wallet, roles: ["super_admin", "founder", "finance"] },
   { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee", "founder", "finance"] },
