@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/my-leaves")({
-  head: () => ({ meta: [{ title: "My Leaves · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "My Leaves · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["employee", "hr_admin", "super_admin"]} fallbackTo="/">
       <MyLeavesPage />

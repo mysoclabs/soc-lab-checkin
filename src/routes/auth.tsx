@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import mysocLogo from "@/assets/mysoc-logo.png.asset.json";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -16,7 +17,7 @@ const schema = z.object({
 });
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in · MySOC Labs Attendance" }] }),
+  head: () => ({ meta: [{ title: "Sign in · MySocLabs Attendance" }] }),
   component: AuthPage,
 });
 
@@ -66,10 +67,10 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
-            <GraduationCap className="h-7 w-7" />
+          <div className="mb-4 flex h-16 w-16 items-center justify-center">
+            <img src={mysocLogo.url} alt="MySocLabs" className="h-full w-full object-contain" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">MySOC Labs</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">MySocLabs</h1>
           <p className="mt-1 text-sm text-muted-foreground">Attendance System · Admin Portal</p>
         </div>
         <Card>

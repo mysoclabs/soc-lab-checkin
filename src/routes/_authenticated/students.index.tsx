@@ -20,7 +20,7 @@ import { z } from "zod";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/")({
-  head: () => ({ meta: [{ title: "Employees · MySOC Labs Attendance" }] }),
+  head: () => ({ meta: [{ title: "Employees · MySocLabs Attendance" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <EmployeesPage />

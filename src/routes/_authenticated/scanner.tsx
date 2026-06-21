@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/scanner")({
-  head: () => ({ meta: [{ title: "QR Scanner · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "QR Scanner · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin", "founder"]} fallbackTo="/me">
       <ScannerPage />

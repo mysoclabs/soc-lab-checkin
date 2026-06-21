@@ -1,8 +1,9 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, GraduationCap, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode,
+  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode,
 } from "lucide-react";
+import mysocLogo from "@/assets/mysoc-logo.png.asset.json";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -68,11 +69,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <GraduationCap className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center">
+            <img src={mysocLogo.url} alt="MySocLabs" className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold">MySOC Labs</span>
+            <span className="text-sm font-semibold">MySocLabs</span>
             <span className="text-xs text-muted-foreground">Attendance System</span>
           </div>
         </div>

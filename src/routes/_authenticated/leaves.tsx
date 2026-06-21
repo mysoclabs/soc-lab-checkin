@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { logAudit, notify } from "@/lib/audit";
 
 export const Route = createFileRoute("/_authenticated/leaves")({
-  head: () => ({ meta: [{ title: "Leave Management · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Leave Management · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <LeavesAdminPage />

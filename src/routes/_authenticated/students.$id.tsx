@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({
-  head: () => ({ meta: [{ title: "Employee Profile · MySOC Labs Attendance" }] }),
+  head: () => ({ meta: [{ title: "Employee Profile · MySocLabs Attendance" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <EmployeeProfile />
@@ -89,7 +89,7 @@ function EmployeeProfile() {
         .meta{font-size:12px;color:#475569;margin-top:12px;}
       </style></head><body>
       <div class="card">
-        <div class="brand">MySOC Labs</div>
+        <div class="brand">MySocLabs</div>
         <h1>${employee.name}</h1>
         <div class="id">${employee.student_id}</div>
         <img class="qr" src="${qrUrl}" />

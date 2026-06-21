@@ -12,7 +12,7 @@ import {
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/")({
-  head: () => ({ meta: [{ title: "Dashboard · MySOC Labs Attendance" }] }),
+  head: () => ({ meta: [{ title: "Dashboard · MySocLabs Attendance" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin", "founder"]} fallbackTo="/finance">
       <Dashboard />

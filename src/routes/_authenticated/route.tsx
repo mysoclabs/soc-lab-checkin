@@ -22,7 +22,7 @@ function AuthedLayout() {
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
-            <div className="text-sm font-medium text-muted-foreground">MySOC Labs · Attendance Admin</div>
+            <div className="text-sm font-medium text-muted-foreground">MySocLabs · Attendance Admin</div>
             <div className="ml-auto"><NotificationBell /></div>
           </header>
           <main className="flex-1 p-4 md:p-6">

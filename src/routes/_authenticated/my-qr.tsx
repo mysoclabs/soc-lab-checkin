@@ -12,7 +12,7 @@ import { RoleGuard } from "@/components/role-guard";
 import { useUserRole } from "@/hooks/use-role";
 
 export const Route = createFileRoute("/_authenticated/my-qr")({
-  head: () => ({ meta: [{ title: "My QR · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "My QR · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["employee", "hr_admin", "super_admin", "founder", "finance"]} fallbackTo="/">
       <MyQrPage />

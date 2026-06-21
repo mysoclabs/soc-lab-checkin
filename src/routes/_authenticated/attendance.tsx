@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
-  head: () => ({ meta: [{ title: "Attendance · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Attendance · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <AttendancePage />

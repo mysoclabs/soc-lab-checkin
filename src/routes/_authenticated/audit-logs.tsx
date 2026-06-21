@@ -12,7 +12,7 @@ import { Search, Shield } from "lucide-react";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/audit-logs")({
-  head: () => ({ meta: [{ title: "Audit Logs · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Audit Logs · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <AuditLogsPage />

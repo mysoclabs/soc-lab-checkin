@@ -17,7 +17,7 @@ import autoTable from "jspdf-autotable";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  head: () => ({ meta: [{ title: "Reports · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Reports · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <ReportsPage />
