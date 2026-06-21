@@ -10,7 +10,7 @@ import { RoleGuard } from "@/components/role-guard";
 import { useUserRole } from "@/hooks/use-role";
 
 export const Route = createFileRoute("/_authenticated/my-attendance")({
-  head: () => ({ meta: [{ title: "My Attendance · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "My Attendance · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["employee", "hr_admin", "super_admin"]} fallbackTo="/">
       <MyAttendance />

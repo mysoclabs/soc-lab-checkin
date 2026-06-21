@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
 
 export const Route = createFileRoute("/_authenticated/students/bulk-qr")({
-  head: () => ({ meta: [{ title: "Bulk QR Codes · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Bulk QR Codes · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "hr_admin"]} fallbackTo="/me">
       <BulkQrPage />
@@ -121,7 +121,7 @@ function BulkQrPage() {
           const meta = [emp.designation, emp.department].filter(Boolean).join(" · ");
           return `
             <div class="card">
-              <div class="brand">MySOC Labs</div>
+              <div class="brand">MySocLabs</div>
               <h1>${escapeHtml(emp.name)}</h1>
               <div class="id">${escapeHtml(emp.student_id)}</div>
               <img class="qr" src="${url}" />

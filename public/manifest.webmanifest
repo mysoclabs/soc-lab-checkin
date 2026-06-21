@@ -1,7 +1,7 @@
 {
-  "name": "MySOC Labs Attendance System",
+  "name": "MySocLabs Attendance System",
   "short_name": "MySOC Attend",
-  "description": "Attendance management for MySOC Labs internship and training center",
+  "description": "Attendance management for MySocLabs internship and training center",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0b1220",

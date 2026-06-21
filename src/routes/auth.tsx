@@ -16,7 +16,7 @@ const schema = z.object({
 });
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in · MySOC Labs Attendance" }] }),
+  head: () => ({ meta: [{ title: "Sign in · MySocLabs Attendance" }] }),
   component: AuthPage,
 });
 
@@ -69,7 +69,7 @@ function AuthPage() {
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
             <GraduationCap className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">MySOC Labs</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">MySocLabs</h1>
           <p className="mt-1 text-sm text-muted-foreground">Attendance System · Admin Portal</p>
         </div>
         <Card>

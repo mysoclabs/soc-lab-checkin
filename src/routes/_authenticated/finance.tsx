@@ -26,7 +26,7 @@ import {
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/finance")({
-  head: () => ({ meta: [{ title: "Finance · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Finance · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin", "founder", "finance"]}>
       <FinancePage />
@@ -48,7 +48,7 @@ const EXPENSE_CATEGORIES = [
 const REVENUE_SOURCES = [
   { value: "client", label: "Client Payment" },
   { value: "blueteamers", label: "Blueteamers Revenue" },
-  { value: "mysoc_labs", label: "MySOC Labs Revenue" },
+  { value: "mysoc_labs", label: "MySocLabs Revenue" },
 ];
 
 const db = supabase as any;

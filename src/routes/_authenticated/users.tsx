@@ -24,7 +24,7 @@ import { ROLE_LABELS, type AppRole } from "@/hooks/use-role";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/users")({
-  head: () => ({ meta: [{ title: "Users & Roles · MySOC Labs" }] }),
+  head: () => ({ meta: [{ title: "Users & Roles · MySocLabs" }] }),
   component: () => (
     <RoleGuard allow={["super_admin"]}>
       <UsersPage />
