@@ -1,6 +1,6 @@
 {
   "name": "MySocLabs Attendance System",
-  "short_name": "MySOC Attend",
+  "short_name": "MySoc Attend",
   "description": "Attendance management for MySocLabs internship and training center",
   "start_url": "/",
   "display": "standalone",

@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0b1220" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "MySOC Attend" },
+      { name: "apple-mobile-web-app-title", content: "MySoc Attend" },
       { property: "og:title", content: "MySocLabs Attendance System" },
       { property: "og:description", content: "Attendance management for MySocLabs." },
       { property: "og:type", content: "website" },
