@@ -553,6 +553,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_email: { Args: never; Returns: string }
       generate_student_id: { Args: never; Returns: string }
       has_finance_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
