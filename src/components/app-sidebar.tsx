@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
   LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode,
 } from "lucide-react";
-import mysocLogo from "@/assets/mysoc-logo.png.asset.json";
+const mysocLogo = { url: "/favicon.ico" };
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
