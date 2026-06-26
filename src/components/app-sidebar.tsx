@@ -34,7 +34,7 @@ const items: NavItem[] = [
   { title: "Audit Logs", url: "/audit-logs", icon: Shield, roles: ["super_admin", "hr_admin"] },
   { title: "Finance", url: "/finance", icon: Wallet, roles: ["super_admin", "founder", "finance"] },
   { title: "My Profile", url: "/me", icon: UserIcon, roles: ["employee", "founder", "finance"] },
-  { title: "My QR", url: "/my-qr", icon: QrCode, roles: ["super_admin", "employee", "founder", "finance", "hr_admin"] },
+  { title: "My QR", url: "/scanner", icon: QrCode, roles: ["employee", "finance"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
   { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin"] },
 ];

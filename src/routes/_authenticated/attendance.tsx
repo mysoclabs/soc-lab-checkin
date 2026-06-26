@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ type Row = {
 function AttendancePage() {
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [query, setQuery] = useState("");
+  const queryClient = useQueryClient();
 
   const { data = [], isLoading, refetch } = useQuery({
     queryKey: ["attendance", date],
@@ -46,6 +47,16 @@ function AttendancePage() {
       return (data as Row[]) ?? [];
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("attendance-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "attendance" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["attendance"] });
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [queryClient]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
