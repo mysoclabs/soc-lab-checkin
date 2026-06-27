@@ -81,6 +81,39 @@ export const setUserRole = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const provisionEmployeeSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string().min(6).max(72),
+});
+
+export const provisionEmployeeUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => provisionEmployeeSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: roleData } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["super_admin", "hr_admin"])
+      .maybeSingle();
+    if (!roleData) throw new Error("Forbidden: admin role required");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: data.password,
+      email_confirm: true,
+    });
+    if (error) throw new Error(error.message);
+    const userId = created.user?.id;
+    if (!userId) throw new Error("User created but no ID returned");
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
+    const { error: roleErr } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: userId, role: "employee" });
+    if (roleErr) throw new Error(roleErr.message);
+    return { id: userId };
+  });
+
 const createUserSchema = z.object({
   email: z.string().email().max(255),
   password: z.string().min(6).max(72),

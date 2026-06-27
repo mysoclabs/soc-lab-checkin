@@ -14,10 +14,11 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2, Eye, Upload, User, QrCode } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, Upload, User, QrCode, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { RoleGuard } from "@/components/role-guard";
+import { provisionEmployeeUser } from "@/lib/users.functions";
 
 export const Route = createFileRoute("/_authenticated/students/")({
   head: () => ({ meta: [{ title: "Employees · MySocLabs Attendance" }] }),
@@ -72,8 +73,9 @@ function EmployeesPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Employee | null>(null);
   const [form, setForm] = useState({
-    name: "", email: "", phone: "", department: "", designation: "", joining_date: "",
+    name: "", email: "", phone: "", department: "", designation: "", joining_date: "", password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -104,9 +106,16 @@ function EmployeesPage() {
         const { error } = await supabase.from("students").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
+        if (!form.password || form.password.length < 6) throw new Error("Initial password must be at least 6 characters");
         const { data, error } = await supabase.from("students").insert(payload).select("id").single();
         if (error) throw error;
         targetId = data.id;
+        try {
+          await provisionEmployeeUser({ data: { email: parsed.email, password: form.password } });
+        } catch (authErr) {
+          const msg = authErr instanceof Error ? authErr.message : "Unknown error";
+          toast.warning(`Employee record created but login account failed: ${msg}. Use Users & Roles to add login manually.`);
+        }
       }
 
       if (photoFile && targetId) {
@@ -162,7 +171,8 @@ function EmployeesPage() {
 
   const resetForm = () => {
     setEditing(null);
-    setForm({ name: "", email: "", phone: "", department: "", designation: "", joining_date: "" });
+    setForm({ name: "", email: "", phone: "", department: "", designation: "", joining_date: "", password: "" });
+    setShowPassword(false);
     setPhotoFile(null);
     setPhotoPreview(null);
     if (fileRef.current) fileRef.current.value = "";
@@ -248,6 +258,30 @@ function EmployeesPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
+              {!editing && (
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Initial Password <span className="text-destructive">*</span></Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Min. 6 characters"
+                      value={form.password}
+                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">The employee will use this to sign in.</p>
+                </div>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
                   <Label htmlFor="phone">Phone Number</Label>
