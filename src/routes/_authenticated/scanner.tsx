@@ -284,12 +284,9 @@ function ScannerPage() {
 
       const today = format(new Date(), "yyyy-MM-dd");
 
-      const dow = new Date().getDay();
-      if (dow === 0 || dow === 6) {
-        setFeedback({ kind: "error", message: "Today is a weekend — attendance not tracked." });
-        toast.warning("Weekend: attendance not tracked");
-        return;
-      }
+      // weekend check disabled for testing
+      // const dow = new Date().getDay();
+      // if (dow === 0 || dow === 6) { ... }
       const { data: holiday } = await supabase.from("holidays").select("name").eq("date", today).maybeSingle();
       if (holiday) {
         setFeedback({ kind: "error", message: `Today is a holiday: ${holiday.name}` });
