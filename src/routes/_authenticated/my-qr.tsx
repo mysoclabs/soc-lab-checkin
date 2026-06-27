@@ -1,10 +1,22 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { QrCode, ScanLine, Download, Maximize2, Minimize2, X } from "lucide-react";
+import { RoleGuard } from "@/components/role-guard";
+import { useUserRole } from "@/hooks/use-role";
 
 export const Route = createFileRoute("/_authenticated/my-qr")({
-  beforeLoad: () => {
-    throw redirect({ to: "/scanner", replace: true });
-  },
-  component: () => null,
+  head: () => ({ meta: [{ title: "My QR · MySocLabs" }] }),
+  component: () => (
+    <RoleGuard allow={["employee", "finance", "hr_admin", "super_admin"]} fallbackTo="/">
+      <MyQrPage />
+    </RoleGuard>
+  ),
 });
 
 function MyQrPage() {
@@ -152,8 +164,6 @@ function MyQrPage() {
           )}
         </CardContent>
       </Card>
-
-      {!isLoading && !employee && null}
 
       {employee && (
         <p className="text-center text-xs text-muted-foreground">
