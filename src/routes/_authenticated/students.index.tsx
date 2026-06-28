@@ -170,7 +170,6 @@ function EmployeesPage() {
   const resetForm = () => {
     setEditing(null);
     setForm({ name: "", email: "", phone: "", department: "", designation: "", joining_date: "" });
-    setShowPassword(false);
     setPhotoFile(null);
     setPhotoPreview(null);
     if (fileRef.current) fileRef.current.value = "";
