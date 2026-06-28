@@ -97,7 +97,8 @@ export const provisionEmployeeUser = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!roleData) throw new Error("Forbidden: admin role required");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const autoPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
+    const { randomBytes } = await import("crypto");
+    const autoPassword = randomBytes(24).toString("base64url");
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
       password: autoPassword,
