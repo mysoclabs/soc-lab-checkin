@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode,
+  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode, IndianRupee,
 } from "lucide-react";
 const mysocLogo = { url: "/favicon.ico" };
 import {
@@ -37,6 +37,7 @@ const items: NavItem[] = [
   { title: "My QR", url: "/my-qr", icon: QrCode, roles: ["employee", "finance"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
   { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin"] },
+  { title: "My Payroll", url: "/my-payroll", icon: IndianRupee, roles: ["employee"] },
 ];
 
 const roleBadgeClass: Record<AppRole, string> = {

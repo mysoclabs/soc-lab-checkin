@@ -43,6 +43,10 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
       const userRoles = roleMap.get(u.id) ?? [];
       const priority: AppRole = userRoles.includes("super_admin")
         ? "super_admin"
+        : userRoles.includes("founder")
+        ? "founder"
+        : userRoles.includes("finance")
+        ? "finance"
         : userRoles.includes("hr_admin")
         ? "hr_admin"
         : "employee";
@@ -57,7 +61,7 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
 
 const setRoleSchema = z.object({
   userId: z.string().uuid(),
-  role: z.enum(["super_admin", "hr_admin", "employee"]),
+  role: z.enum(["super_admin", "founder", "finance", "hr_admin", "employee"]),
 });
 
 export const setUserRole = createServerFn({ method: "POST" })
@@ -118,7 +122,7 @@ export const provisionEmployeeUser = createServerFn({ method: "POST" })
 const createUserSchema = z.object({
   email: z.string().email().max(255),
   password: z.string().min(6).max(72),
-  role: z.enum(["super_admin", "hr_admin", "employee"]),
+  role: z.enum(["super_admin", "founder", "finance", "hr_admin", "employee"]),
 });
 
 export const createUserWithRole = createServerFn({ method: "POST" })
