@@ -83,7 +83,6 @@ export const setUserRole = createServerFn({ method: "POST" })
 
 const provisionEmployeeSchema = z.object({
   email: z.string().email().max(255),
-  password: z.string().min(6).max(72),
 });
 
 export const provisionEmployeeUser = createServerFn({ method: "POST" })
@@ -98,9 +97,10 @@ export const provisionEmployeeUser = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!roleData) throw new Error("Forbidden: admin role required");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const autoPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
-      password: data.password,
+      password: autoPassword,
       email_confirm: true,
     });
     if (error) throw new Error(error.message);
