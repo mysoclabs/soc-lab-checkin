@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { listUsersWithRoles, setUserRole, createUserWithRole } from "@/lib/users.functions";
+import { listUsersWithRoles, setUserRole, createUserWithRole, deleteUser } from "@/lib/users.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,8 +17,12 @@ import {
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, ShieldCheck } from "lucide-react";
+import { Loader2, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { RoleGuard } from "@/components/role-guard";
 import { ROLE_LABELS, type AppRole } from "@/hooks/use-role";
 import { format } from "date-fns";
@@ -46,6 +50,7 @@ function UsersPage() {
   const listFn = useServerFn(listUsersWithRoles);
   const setRoleFn = useServerFn(setUserRole);
   const createFn = useServerFn(createUserWithRole);
+  const deleteFn = useServerFn(deleteUser);
   const qc = useQueryClient();
 
   const { data: users = [], isLoading } = useQuery({
@@ -62,6 +67,20 @@ function UsersPage() {
     },
     onSuccess: () => {
       toast.success("Role updated");
+      qc.invalidateQueries({ queryKey: ["app-users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await deleteFn({ data: { userId } });
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({ action: "user_deleted", entity: "user", entity_id: userId });
+      return res;
+    },
+    onSuccess: () => {
+      toast.success("User deleted");
       qc.invalidateQueries({ queryKey: ["app-users"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -108,7 +127,7 @@ function UsersPage() {
               </div>
               <div className="space-y-1">
                 <Label>Temporary password</Label>
-                <Input type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
               </div>
               <div className="space-y-1">
                 <Label>Role</Label>
@@ -142,13 +161,14 @@ function UsersPage() {
                   <TableHead>Created</TableHead>
                   <TableHead>Current Role</TableHead>
                   <TableHead>Assign Role</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : users.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No users found.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No users found.</TableCell></TableRow>
                 ) : users.map((u) => (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">{u.email}</TableCell>
@@ -170,6 +190,32 @@ function UsersPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete user?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This permanently removes <strong>{u.email}</strong> and revokes their access. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => deleteMutation.mutate(u.id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -145,5 +145,28 @@ export const createUserWithRole = createServerFn({ method: "POST" })
       .from("user_roles")
       .insert({ user_id: userId, role: data.role });
     if (roleErr) throw new Error(roleErr.message);
+    // Auto-create employee record so the user appears in the Employees tab
+    if (data.role === "employee") {
+      const name = data.email.split("@")[0];
+      await supabaseAdmin.from("students").insert({ name, email: data.email });
+    }
     return { id: userId };
+  });
+
+const deleteUserSchema = z.object({
+  userId: z.string().uuid(),
+});
+
+export const deleteUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => deleteUserSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context.supabase, context.userId);
+    if (data.userId === context.userId) {
+      throw new Error("You cannot delete your own account");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
