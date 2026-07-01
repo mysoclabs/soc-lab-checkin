@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AlertTriangle } from "lucide-react";
 
 export type ScanBlock =
@@ -20,13 +21,33 @@ function detailFor(block: ScanBlock): string | undefined {
   return `Please wait ${minutes} more minute${minutes === 1 ? "" : "s"} before scanning again.`;
 }
 
-export function ScanBlockedOverlay({ block, onDismiss }: { block: ScanBlock; onDismiss: () => void }) {
+/** Tracks document.fullscreenElement so the overlay can portal into it — a
+ * native Fullscreen API element only paints its own subtree, so a `fixed`
+ * overlay rendered outside it would otherwise be invisible while the
+ * scanner's camera view is in fullscreen. */
+function useFullscreenTarget(): Element {
+  const [target, setTarget] = useState<Element>(() => document.fullscreenElement ?? document.body);
   useEffect(() => {
-    const timer = setTimeout(onDismiss, AUTO_DISMISS_MS);
-    return () => clearTimeout(timer);
-  }, [onDismiss]);
+    const onChange = () => setTarget(document.fullscreenElement ?? document.body);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  return target;
+}
 
-  return (
+export function ScanBlockedOverlay({ block, onDismiss }: { block: ScanBlock; onDismiss: () => void }) {
+  const target = useFullscreenTarget();
+  const onDismissRef = useRef(onDismiss);
+  onDismissRef.current = onDismiss;
+
+  useEffect(() => {
+    const timer = setTimeout(() => onDismissRef.current(), AUTO_DISMISS_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const detail = detailFor(block);
+
+  return createPortal(
     <div
       role="alert"
       onClick={onDismiss}
@@ -34,8 +55,9 @@ export function ScanBlockedOverlay({ block, onDismiss }: { block: ScanBlock; onD
     >
       <AlertTriangle className="h-16 w-16" />
       <p className="max-w-md text-2xl font-semibold">{TITLES[block.kind]}</p>
-      {detailFor(block) && <p className="max-w-sm text-base opacity-90">{detailFor(block)}</p>}
+      {detail && <p className="max-w-sm text-base opacity-90">{detail}</p>}
       <p className="text-sm opacity-70">Tap anywhere to dismiss</p>
-    </div>
+    </div>,
+    target,
   );
 }
