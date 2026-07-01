@@ -1,5 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
 import { createAuditLog } from "@/lib/audit.functions";
+import { createNotification } from "@/lib/notifications.functions";
 
 export type AuditEntry = {
   action: string;
@@ -16,25 +16,26 @@ export async function logAudit(entry: AuditEntry): Promise<void> {
   }
 }
 
-export type NotifyInput = {
-  audience: "user" | "admins";
-  user_id?: string | null;
-  type: string;
-  title: string;
-  message?: string;
-  link?: string;
-};
+export type NotifyInput =
+  | {
+      audience: "admins";
+      type: "leave_submitted" | "late_check_in" | "early_check_out" | "employee_created";
+      title: string;
+      message?: string;
+      link?: string;
+    }
+  | {
+      audience: "user";
+      user_id: string;
+      type: "leave_approved" | "leave_rejected";
+      title: string;
+      message?: string;
+      link?: string;
+    };
 
 export async function notify(n: NotifyInput): Promise<void> {
   try {
-    await supabase.from("notifications").insert({
-      audience: n.audience,
-      user_id: n.audience === "user" ? n.user_id ?? null : null,
-      type: n.type,
-      title: n.title,
-      message: n.message ?? null,
-      link: n.link ?? null,
-    });
+    await createNotification({ data: n });
   } catch (err) {
     console.error("notify failed", err);
   }
