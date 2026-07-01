@@ -27,6 +27,7 @@ import { Route as AuthenticatedFinanceRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
+import { Route as ApiCronAutoCheckoutRouteImport } from './routes/api/cron/auto-checkout'
 import { Route as AuthenticatedStudentsBulkQrRouteImport } from './routes/_authenticated/students.bulk-qr'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 
@@ -121,6 +122,11 @@ const AuthenticatedStudentsIndexRoute =
     path: '/students/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiCronAutoCheckoutRoute = ApiCronAutoCheckoutRouteImport.update({
+  id: '/api/cron/auto-checkout',
+  path: '/api/cron/auto-checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedStudentsBulkQrRoute =
   AuthenticatedStudentsBulkQrRouteImport.update({
     id: '/students/bulk-qr',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/users': typeof AuthenticatedUsersRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
+  '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
   '/students/': typeof AuthenticatedStudentsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
+  '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
   '/students': typeof AuthenticatedStudentsIndexRoute
 }
 export interface FileRoutesById {
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
   '/_authenticated/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
+  '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
 }
 export interface FileRouteTypes {
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/students/$id'
     | '/students/bulk-qr'
+    | '/api/cron/auto-checkout'
     | '/students/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/'
     | '/students/$id'
     | '/students/bulk-qr'
+    | '/api/cron/auto-checkout'
     | '/students'
   id:
     | '__root__'
@@ -262,12 +273,14 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/students/$id'
     | '/_authenticated/students/bulk-qr'
+    | '/api/cron/auto-checkout'
     | '/_authenticated/students/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiCronAutoCheckoutRoute: typeof ApiCronAutoCheckoutRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/cron/auto-checkout': {
+      id: '/api/cron/auto-checkout'
+      path: '/api/cron/auto-checkout'
+      fullPath: '/api/cron/auto-checkout'
+      preLoaderRoute: typeof ApiCronAutoCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/students/bulk-qr': {
       id: '/_authenticated/students/bulk-qr'
       path: '/students/bulk-qr'
@@ -463,6 +483,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiCronAutoCheckoutRoute: ApiCronAutoCheckoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
