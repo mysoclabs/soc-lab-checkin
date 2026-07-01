@@ -23,6 +23,9 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
+import { resolveEffectiveShift } from "@/lib/resolve-shift";
+import { computeCheckInStatus, isPastShiftEnd, cooldownRemainingMs } from "@/lib/shift-time";
+import { ScanBlockedOverlay, type ScanBlock } from "@/components/scan-blocked-overlay";
 
 export const Route = createFileRoute("/_authenticated/scanner")({
   head: () => ({ meta: [{ title: "QR Scanner · MySocLabs" }] }),
@@ -34,7 +37,7 @@ export const Route = createFileRoute("/_authenticated/scanner")({
 });
 
 type Feedback = {
-  kind: "check-in" | "check-out" | "complete" | "error";
+  kind: "check-in" | "check-out" | "error";
   message: string;
   name?: string;
   time?: string;
@@ -118,6 +121,7 @@ function ScannerPage() {
   const [fullscreen, setFullscreen] = useState(false);
   const [flash, setFlash] = useState<"success" | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [blocked, setBlocked] = useState<ScanBlock | null>(null);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
   const resolveStudent = useServerFn(resolveStudentByCode);
 
@@ -308,28 +312,14 @@ function ScannerPage() {
 
       if (!existing) {
         const checkIn = new Date();
-        const { data: assigned } = await supabase
-          .from("employee_shifts")
-          .select("shifts(start_time, late_cutoff_minutes)")
-          .eq("employee_id", employee.id)
-          .lte("effective_from", today)
-          .order("effective_from", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        let startTime = "09:30:00";
-        let grace = 0;
-        const shift = (assigned as { shifts: { start_time: string; late_cutoff_minutes: number } | null } | null)?.shifts;
-        if (shift) {
-          startTime = shift.start_time;
-          grace = shift.late_cutoff_minutes ?? 0;
-        } else {
-          const { data: def } = await supabase.from("shifts").select("start_time, late_cutoff_minutes").eq("is_default", true).maybeSingle();
-          if (def) { startTime = def.start_time; grace = def.late_cutoff_minutes ?? 0; }
+        const shift = await resolveEffectiveShift(supabase, employee.id, today);
+        if (isPastShiftEnd(checkIn, shift)) {
+          vibrate([80, 40, 80]);
+          setFeedback(null);
+          setBlocked({ kind: "shift-over" });
+          return;
         }
-        const [h, m] = startTime.split(":").map(Number);
-        const cutoff = new Date(checkIn);
-        cutoff.setHours(h, m + grace, 0, 0);
-        const status = checkIn > cutoff ? "late" : "present";
+        const status = computeCheckInStatus(checkIn, shift);
         const { error: iErr } = await supabase.from("attendance").insert({
           student_id: employee.id,
           date: today,
@@ -363,17 +353,21 @@ function ScannerPage() {
 
       if (existing.check_out) {
         vibrate([40, 30, 40]);
-        setFeedback({
-          kind: "complete",
-          message: "Attendance already completed for today",
-          name: employee.name,
-          time: format(new Date(existing.check_out), "h:mm a"),
-        });
-        toast.warning(`${employee.name}: attendance already completed`);
+        setFeedback(null);
+        setBlocked({ kind: "already-complete" });
         return;
       }
 
       const checkOut = new Date();
+      if (existing.check_in) {
+        const remaining = cooldownRemainingMs(checkOut, new Date(existing.check_in));
+        if (remaining > 0) {
+          vibrate([40, 30, 40]);
+          setFeedback(null);
+          setBlocked({ kind: "cooldown-checkin", remainingMs: remaining });
+          return;
+        }
+      }
       const checkInDate = existing.check_in ? new Date(existing.check_in) : checkOut;
       const ms = checkOut.getTime() - checkInDate.getTime();
       const hours = Math.floor(ms / 3_600_000);
@@ -429,12 +423,6 @@ function ScannerPage() {
           <p className="text-sm text-muted-foreground">Checked out at {feedback.time}</p>
           {feedback.hours && <Badge variant="secondary">Working hours: {feedback.hours}</Badge>}
         </div>
-      ) : feedback.kind === "complete" ? (
-        <div className="space-y-3 rounded-lg border border-warning/30 bg-warning/10 p-4">
-          <div className="flex items-center gap-2 text-warning"><AlertTriangle className="h-5 w-5" /><span className="font-semibold">{feedback.message}</span></div>
-          <p className="text-2xl font-semibold">{feedback.name}</p>
-          {feedback.time && <p className="text-sm text-muted-foreground">Checked out at {feedback.time}</p>}
-        </div>
       ) : (
         <div className="space-y-2 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
           <div className="flex items-center gap-2"><AlertTriangle className="h-5 w-5" /><span className="font-semibold">Scan error</span></div>
@@ -445,7 +433,9 @@ function ScannerPage() {
   );
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <>
+      {blocked && <ScanBlockedOverlay block={blocked} onDismiss={() => setBlocked(null)} />}
+      <div className="space-y-4 sm:space-y-6">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">QR Scanner</h1>
@@ -589,6 +579,7 @@ function ScannerPage() {
           <CardContent>{FeedbackPanel}</CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
