@@ -31,7 +31,6 @@ function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const login = useServerFn(loginWithLockout);
-  const captchaRequired = !!import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -45,10 +44,10 @@ function AuthPage() {
       toast.error(parsed.error.issues[0].message);
       return;
     }
-    if (captchaRequired && !captchaToken) {
-      toast.error("Please complete the verification challenge");
-      return;
-    }
+    // No hard CAPTCHA gate here: Supabase's Attack Protection setting is the
+    // real enforcement point (server-side, unbypassable) when it's enabled.
+    // The token is forwarded when available; login still proceeds without one
+    // so a Turnstile-side outage never locks legitimate users out entirely.
     setLoading(true);
     try {
       const { access_token, refresh_token } = await login({
