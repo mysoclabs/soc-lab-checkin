@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveStudentByCode } from "@/lib/attendance.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -117,6 +119,7 @@ function ScannerPage() {
   const [flash, setFlash] = useState<"success" | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const lastScanRef = useRef<{ code: string; at: number } | null>(null);
+  const resolveStudent = useServerFn(resolveStudentByCode);
 
   useEffect(() => {
     return () => {
@@ -269,11 +272,13 @@ function ScannerPage() {
 
     setProcessing(true);
     try {
-      const { data: employee, error: sErr } = await supabase
-        .from("students")
-        .select("id, name, student_id")
-        .eq("student_id", code)
-        .maybeSingle();
+      let employee: { id: string; name: string; student_id: string } | null = null;
+      let sErr = false;
+      try {
+        employee = await resolveStudent({ data: { code } });
+      } catch {
+        sErr = true;
+      }
 
       if (sErr || !employee) {
         vibrate([60, 40, 60]);

@@ -121,7 +121,7 @@ export const provisionEmployeeUser = createServerFn({ method: "POST" })
 
 const createUserSchema = z.object({
   email: z.string().email().max(255),
-  password: z.string().min(6).max(72),
+  password: z.string().min(10).max(72),
   role: z.enum(["super_admin", "founder", "finance", "hr_admin", "employee"]),
 });
 

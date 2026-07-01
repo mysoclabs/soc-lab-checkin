@@ -1,6 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { loginWithLockout } from "@/lib/login.functions";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +29,9 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const login = useServerFn(loginWithLockout);
+  const captchaRequired = !!import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -39,9 +45,16 @@ function AuthPage() {
       toast.error(parsed.error.issues[0].message);
       return;
     }
+    if (captchaRequired && !captchaToken) {
+      toast.error("Please complete the verification challenge");
+      return;
+    }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword(parsed.data);
+      const { access_token, refresh_token } = await login({
+        data: { ...parsed.data, captchaToken: captchaToken ?? undefined },
+      });
+      const { error } = await supabase.auth.setSession({ access_token, refresh_token });
       if (error) throw error;
       toast.success("Welcome back");
       navigate({ to: "/", replace: true });
@@ -102,6 +115,7 @@ function AuthPage() {
                 </button>
               </div>
             </div>
+            <TurnstileWidget onToken={setCaptchaToken} />
             <Button onClick={handle} disabled={loading} className="w-full">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign in"}
             </Button>
