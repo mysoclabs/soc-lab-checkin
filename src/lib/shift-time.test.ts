@@ -1,4 +1,5 @@
 import { describe, test, expect } from "bun:test";
+import { fromZonedTime } from "date-fns-tz";
 import {
   COOLDOWN_MS,
   AUTO_CHECKOUT_GRACE_MS,
@@ -13,8 +14,17 @@ import {
 
 const GENERAL: ShiftTimes = { start_time: "08:30:00", end_time: "16:30:00", late_cutoff_minutes: 10 };
 
+/**
+ * Builds the real UTC instant corresponding to 2026-07-01 h:m:s read as an
+ * Asia/Kolkata wall clock, regardless of the host process's own local
+ * timezone. Using a bare `new Date(2026, 6, 1, h, m, s)` here would make
+ * every assertion below depend on whatever timezone the test runner's host
+ * happens to be set to (which is exactly the blind spot that let the
+ * original host-local-time bug in `timeOnDate` through review undetected).
+ */
 function at(h: number, m: number, s = 0) {
-  return new Date(2026, 6, 1, h, m, s);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return fromZonedTime(`2026-07-01T${pad(h)}:${pad(m)}:${pad(s)}`, "Asia/Kolkata");
 }
 
 describe("timeOnDate", () => {
@@ -32,6 +42,29 @@ describe("timeOnDate", () => {
     const result = timeOnDate(at(0, 0), "16:30");
     expect(result.getHours()).toBe(16);
     expect(result.getMinutes()).toBe(30);
+  });
+
+  // Regression test for the original bug: `timeOnDate` used to build wall-clock
+  // times via `Date.setHours()`, which resolves against the *host process's*
+  // local timezone. That's correct when the process happens to run in
+  // Asia/Kolkata (e.g. a developer's machine or the browser), but wrong on a
+  // host set to any other zone (e.g. Vercel's serverless functions, which
+  // default to UTC) — a bug that all the other tests in this file, which read
+  // back the result via host-local getters (`.getHours()` etc.), would NOT
+  // have caught if the test runner's own host were not itself Asia/Kolkata.
+  //
+  // This test instead compares against a manually-computed, absolute UTC
+  // instant for a known IST wall-clock time, so it pins the correct answer
+  // independent of whatever timezone the test runner's host happens to be
+  // set to. We were unable to force `process.env.TZ` per-test under bun:test
+  // (bun reads TZ once at process startup, and `bun test` does not expose a
+  // documented per-file/per-test TZ override), so this absolute-instant
+  // comparison is the fallback described in the task brief.
+  test("resolves 08:30 IST to the correct absolute UTC instant, independent of host TZ", () => {
+    const referenceDate = new Date("2026-07-01T00:00:00.000Z");
+    const result = timeOnDate(referenceDate, "08:30:00");
+    // 08:30 IST (UTC+5:30) on 2026-07-01 == 2026-07-01T03:00:00.000Z
+    expect(result.toISOString()).toBe("2026-07-01T03:00:00.000Z");
   });
 });
 

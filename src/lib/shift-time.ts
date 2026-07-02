@@ -1,3 +1,5 @@
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
+
 export type ShiftTimes = {
   start_time: string;
   end_time: string;
@@ -7,12 +9,19 @@ export type ShiftTimes = {
 export const COOLDOWN_MS = 60 * 60 * 1000;
 export const AUTO_CHECKOUT_GRACE_MS = 2 * 60 * 60 * 1000;
 
-/** Combines a reference Date's calendar day with a "HH:MM" or "HH:MM:SS" time-of-day string. */
+/** The org's single timezone: all shift wall-clock times are Asia/Kolkata, regardless of host runtime TZ. */
+const ORG_TIMEZONE = "Asia/Kolkata";
+
+/**
+ * Combines a reference Date's calendar day with a "HH:MM" or "HH:MM:SS" time-of-day string,
+ * interpreting both the calendar day and the time string as Asia/Kolkata wall-clock, so the
+ * result is the correct UTC instant regardless of the host process's local timezone.
+ */
 export function timeOnDate(referenceDate: Date, time: string): Date {
-  const [h, m, s] = time.split(":").map(Number);
-  const result = new Date(referenceDate);
-  result.setHours(h, m, s ?? 0, 0);
-  return result;
+  const day = formatInTimeZone(referenceDate, ORG_TIMEZONE, "yyyy-MM-dd");
+  const [h, m, s] = time.split(":").map((n) => Number(n).toString().padStart(2, "0"));
+  const wallClock = `${day}T${h}:${m}:${s ?? "00"}`;
+  return fromZonedTime(wallClock, ORG_TIMEZONE);
 }
 
 /** Present if at or before start_time + late_cutoff_minutes, otherwise late. Cutoff is inclusive. */

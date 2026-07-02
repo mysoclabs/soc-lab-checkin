@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { resolveEffectiveShift } from "@/lib/resolve-shift";
 import { isAutoCheckoutDue, autoCheckoutDeadline } from "@/lib/shift-time";
 
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/cron/auto-checkout")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const today = format(new Date(), "yyyy-MM-dd");
+        const today = formatInTimeZone(new Date(), "Asia/Kolkata", "yyyy-MM-dd");
         const now = new Date();
 
         const { data: openRows, error } = await supabaseAdmin
