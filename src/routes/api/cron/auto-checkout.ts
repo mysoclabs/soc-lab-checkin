@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/cron/auto-checkout")({
     handlers: {
       GET: async ({ request }) => {
         const auth = request.headers.get("authorization");
-        if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+        if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
           return new Response("Unauthorized", { status: 401 });
         }
 
