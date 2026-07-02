@@ -1,5 +1,14 @@
+// Forces the entire test file to run under a host timezone that is NOT
+// Asia/Kolkata, so every test below genuinely exercises the Asia/Kolkata-
+// explicit conversion logic in `shift-time.ts` instead of accidentally
+// passing because the test runner's own host happens to already be
+// Asia/Kolkata. Must run before any Date/Intl use in this file (bun and
+// node both read TZ lazily on first use, not once at process startup, so
+// this takes effect even though the import statements below are hoisted).
+process.env.TZ = "UTC";
+
 import { describe, test, expect } from "bun:test";
-import { fromZonedTime } from "date-fns-tz";
+import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import {
   COOLDOWN_MS,
   AUTO_CHECKOUT_GRACE_MS,
@@ -29,19 +38,20 @@ function at(h: number, m: number, s = 0) {
 
 describe("timeOnDate", () => {
   test("combines a reference date with a HH:MM:SS time", () => {
+    // Read back via Asia/Kolkata-explicit formatting, not host-local getters:
+    // `.getFullYear()`/`.getHours()`/etc. report the *host's* local time-of-day,
+    // which is wrong here regardless of which `timeOnDate` implementation is
+    // under test (this file now forces TZ=UTC, so host-local getters would
+    // read back 03:00, not 08:30).
     const result = timeOnDate(at(0, 0), "08:30:00");
-    expect(result.getFullYear()).toBe(2026);
-    expect(result.getMonth()).toBe(6);
-    expect(result.getDate()).toBe(1);
-    expect(result.getHours()).toBe(8);
-    expect(result.getMinutes()).toBe(30);
-    expect(result.getSeconds()).toBe(0);
+    expect(formatInTimeZone(result, "Asia/Kolkata", "yyyy-MM-dd'T'HH:mm:ss")).toBe(
+      "2026-07-01T08:30:00",
+    );
   });
 
   test("accepts HH:MM without seconds", () => {
     const result = timeOnDate(at(0, 0), "16:30");
-    expect(result.getHours()).toBe(16);
-    expect(result.getMinutes()).toBe(30);
+    expect(formatInTimeZone(result, "Asia/Kolkata", "HH:mm")).toBe("16:30");
   });
 
   // Regression test for the original bug: `timeOnDate` used to build wall-clock
@@ -49,17 +59,16 @@ describe("timeOnDate", () => {
   // local timezone. That's correct when the process happens to run in
   // Asia/Kolkata (e.g. a developer's machine or the browser), but wrong on a
   // host set to any other zone (e.g. Vercel's serverless functions, which
-  // default to UTC) — a bug that all the other tests in this file, which read
-  // back the result via host-local getters (`.getHours()` etc.), would NOT
-  // have caught if the test runner's own host were not itself Asia/Kolkata.
+  // default to UTC).
   //
-  // This test instead compares against a manually-computed, absolute UTC
-  // instant for a known IST wall-clock time, so it pins the correct answer
-  // independent of whatever timezone the test runner's host happens to be
-  // set to. We were unable to force `process.env.TZ` per-test under bun:test
-  // (bun reads TZ once at process startup, and `bun test` does not expose a
-  // documented per-file/per-test TZ override), so this absolute-instant
-  // comparison is the fallback described in the task brief.
+  // This test compares against a manually-computed, absolute UTC instant for
+  // a known IST wall-clock time, so it pins the correct answer independent of
+  // host TZ. Belt-and-suspenders with the `process.env.TZ = "UTC"` line at the
+  // top of this file: that line forces every test in the file (including this
+  // one) to run under a non-Kolkata host TZ, which is what actually gives this
+  // test teeth — without it, this assertion would pass under the old buggy
+  // `setHours`-based implementation too, as long as the runner's host happened
+  // to already be Asia/Kolkata.
   test("resolves 08:30 IST to the correct absolute UTC instant, independent of host TZ", () => {
     const referenceDate = new Date("2026-07-01T00:00:00.000Z");
     const result = timeOnDate(referenceDate, "08:30:00");
@@ -136,9 +145,10 @@ describe("cooldownRemainingMs", () => {
 
 describe("autoCheckoutDeadline", () => {
   test("is shift end + 2 hours on the reference date", () => {
+    // Read back via Asia/Kolkata-explicit formatting (see comment above), not
+    // host-local getters.
     const deadline = autoCheckoutDeadline(GENERAL, at(0, 0));
-    expect(deadline.getHours()).toBe(18);
-    expect(deadline.getMinutes()).toBe(30);
+    expect(formatInTimeZone(deadline, "Asia/Kolkata", "HH:mm")).toBe("18:30");
   });
 });
 
