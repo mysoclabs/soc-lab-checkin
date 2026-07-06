@@ -21,7 +21,7 @@ const loginSchema = z.object({
   captchaToken: z.string().optional(),
 });
 
-function getClientIp(): string | null {
+export function getClientIp(): string | null {
   const request = getRequest();
   const headers = request?.headers;
   if (!headers) return null;
