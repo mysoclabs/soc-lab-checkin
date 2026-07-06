@@ -83,13 +83,7 @@ function ForgotPasswordPage() {
               </>
             ) : (
               <Button
-                onClick={() =>
-                  // Cast needed until Task 4 adds the `/reset-password` route to the
-                  // generated route tree; the target shape (search: { email }) is the
-                  // one Task 4's route reads via validateSearch. Safe to drop the cast
-                  // once that route exists.
-                  navigate({ to: "/reset-password", search: { email } } as never)
-                }
+                onClick={() => navigate({ to: "/reset-password", search: { email } })}
                 className="w-full"
               >
                 Enter code
