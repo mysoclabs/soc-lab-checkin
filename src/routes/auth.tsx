@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -113,6 +113,11 @@ function AuthPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+            </div>
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground">
+                Forgot password?
+              </Link>
             </div>
             <TurnstileWidget onToken={setCaptchaToken} />
             <Button onClick={handle} disabled={loading} className="w-full">
