@@ -103,9 +103,10 @@ function ResetPasswordPage() {
       return;
     }
     setLoading(true);
+    let accessToken: string | undefined;
     try {
       const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
+      accessToken = sessionData.session?.access_token;
       if (!accessToken) {
         toast.error("Your session expired, please request a new code.");
         setStep("code");
@@ -113,16 +114,28 @@ function ResetPasswordPage() {
       }
       const { error: updateError } = await supabase.auth.updateUser({ password: parsed.data.password });
       if (updateError) throw updateError;
-      await revoke({ data: { accessToken } });
-      await supabase.auth.signOut();
-      toast.success("Password updated — please log in.");
-      navigate({ to: "/auth", replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not update password";
       toast.error(msg);
+      return;
     } finally {
       setLoading(false);
     }
+
+    // Password update succeeded — the rest is best-effort cleanup and must not
+    // prevent the user from landing signed-out on /auth.
+    try {
+      await revoke({ data: { accessToken } });
+    } catch (err) {
+      console.error("Failed to revoke sessions after password reset", err);
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Failed to sign out locally after password reset", err);
+    }
+    toast.success("Password updated — please log in.");
+    navigate({ to: "/auth", replace: true });
   };
 
   return (
