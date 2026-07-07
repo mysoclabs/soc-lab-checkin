@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { verifyResetCode, revokeAllSessions } from "@/lib/password-reset.functions";
+import { verifyResetCode, revokeAllSessions, checkSamePassword } from "@/lib/password-reset.functions";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,7 @@ function ResetPasswordPage() {
   const { email: initialEmail } = useSearch({ from: "/reset-password" });
   const verify = useServerFn(verifyResetCode);
   const revoke = useServerFn(revokeAllSessions);
+  const checkSame = useServerFn(checkSamePassword);
 
   const [step, setStep] = useState<"code" | "password">("code");
   const [email, setEmail] = useState(initialEmail);
@@ -110,6 +111,11 @@ function ResetPasswordPage() {
       if (!accessToken) {
         toast.error("Your session expired, please request a new code.");
         setStep("code");
+        return;
+      }
+      const { same } = await checkSame({ data: { accessToken, password: parsed.data.password } });
+      if (same) {
+        toast.error("New password must be different from your current password.");
         return;
       }
       const { error: updateError } = await supabase.auth.updateUser({ password: parsed.data.password });

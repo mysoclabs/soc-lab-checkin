@@ -86,3 +86,34 @@ export const revokeAllSessions = createServerFn({ method: "POST" })
     if (error) throw new Error("Could not fully revoke existing sessions");
     return { ok: true };
   });
+
+const samePasswordSchema = z.object({
+  accessToken: z.string().min(1),
+  password: z.string().min(1).max(72),
+});
+
+// The email is resolved from the caller's own access token (never accepted
+// as a client-supplied parameter), so this can't be used as a password-
+// guessing oracle against an arbitrary account. Reaching this function at
+// all already requires a session obtained via verifyResetCode's rate-limited
+// OTP check, so no separate attempt lockout is layered on top here.
+export const checkSamePassword = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => samePasswordSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(data.accessToken);
+    if (userError || !userData.user?.email) throw new Error("Your session expired, please request a new code.");
+
+    const SUPABASE_URL = process.env.SUPABASE_URL!;
+    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const anon = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    const { error: signInError } = await anon.auth.signInWithPassword({
+      email: userData.user.email,
+      password: data.password,
+    });
+
+    return { same: !signInError };
+  });
