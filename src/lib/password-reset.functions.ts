@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { getClientIp } from "@/lib/login.functions";
 
 // Layer 2 defense-in-depth against brute-forcing the emailed reset code,
 // mirroring the login lockout in login.functions.ts (itself a fix for
@@ -24,6 +23,7 @@ export const verifyResetCode = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => verifySchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getClientIp } = await import("@/lib/request.server");
     const email = data.email.toLowerCase();
     const ip = getClientIp();
     const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();

@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
@@ -21,21 +20,11 @@ const loginSchema = z.object({
   captchaToken: z.string().optional(),
 });
 
-export function getClientIp(): string | null {
-  const request = getRequest();
-  const headers = request?.headers;
-  if (!headers) return null;
-  return (
-    headers.get("cf-connecting-ip") ??
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    null
-  );
-}
-
 export const loginWithLockout = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => loginSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getClientIp } = await import("@/lib/request.server");
     const email = data.email.toLowerCase();
     const ip = getClientIp();
     const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();

@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -17,22 +16,12 @@ const entrySchema = z.object({
   details: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 
-function getClientIp(): string | null {
-  const request = getRequest();
-  const headers = request?.headers;
-  if (!headers) return null;
-  return (
-    headers.get("cf-connecting-ip") ??
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    null
-  );
-}
-
 export const createAuditLog = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => entrySchema.parse(data))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getClientIp } = await import("@/lib/request.server");
     const userName = (context.claims as { email?: string } | undefined)?.email ?? null;
     const { error } = await supabaseAdmin.from("audit_logs").insert({
       user_id: context.userId,
