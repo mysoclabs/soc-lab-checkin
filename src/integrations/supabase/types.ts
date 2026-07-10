@@ -288,30 +288,6 @@ export type Database = {
           },
         ]
       }
-      login_attempts: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          ip_address: string | null
-          success: boolean
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          ip_address?: string | null
-          success: boolean
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          ip_address?: string | null
-          success?: boolean
-        }
-        Relationships: []
-      }
       notifications: {
         Row: {
           audience: string
@@ -381,30 +357,6 @@ export type Database = {
           office_start_time?: string
           updated_at?: string
           working_hours?: number
-        }
-        Relationships: []
-      }
-      password_reset_attempts: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          ip_address: string | null
-          success: boolean
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          ip_address?: string | null
-          success: boolean
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          ip_address?: string | null
-          success?: boolean
         }
         Relationships: []
       }
