@@ -130,7 +130,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      <Toaster richColors position="top-right" />
+      <Toaster
+        richColors
+        position="top-right"
+        offset={{ top: "max(1rem, env(safe-area-inset-top))" }}
+        mobileOffset={{ top: "max(1rem, env(safe-area-inset-top))" }}
+      />
     </QueryClientProvider>
   );
 }
