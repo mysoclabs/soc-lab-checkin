@@ -20,7 +20,7 @@ function AuthedLayout() {
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
+          <header className="sticky top-0 z-30 flex min-h-14 items-center gap-3 border-b border-border bg-background/80 px-4 pt-[env(safe-area-inset-top)] backdrop-blur">
             <SidebarTrigger />
             <div className="text-sm font-medium text-muted-foreground">MySocLabs · Attendance Admin</div>
             <div className="ml-auto"><NotificationBell /></div>
