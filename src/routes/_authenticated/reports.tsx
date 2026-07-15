@@ -53,7 +53,7 @@ function ReportsPage() {
     queryFn: async () => {
       const { data } = await supabase.from("students").select("department");
       const set = new Set<string>();
-      (data ?? []).forEach((r) => { if (r.department) set.add(r.department); });
+      (data ?? []).forEach((r: { department: string | null }) => { if (r.department) set.add(r.department); });
       return Array.from(set).sort();
     },
   });

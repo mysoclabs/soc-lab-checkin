@@ -53,8 +53,8 @@ function MyPayrollPage() {
     },
   });
 
-  const totalPaid = payroll.filter((p) => p.status === "paid").reduce((s, p) => s + p.amount, 0);
-  const totalPending = payroll.filter((p) => p.status !== "paid").reduce((s, p) => s + p.amount, 0);
+  const totalPaid = payroll.filter((p: { status: string }) => p.status === "paid").reduce((s: number, p: { amount: number }) => s + p.amount, 0);
+  const totalPending = payroll.filter((p: { status: string }) => p.status !== "paid").reduce((s: number, p: { amount: number }) => s + p.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -111,7 +111,7 @@ function MyPayrollPage() {
                     <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
                   ) : !payroll.length ? (
                     <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No payroll records yet.</TableCell></TableRow>
-                  ) : payroll.map((p) => (
+                  ) : payroll.map((p: { id: string; period_month: number; period_year: number; employee_type: string; amount: number; status: string; paid_at: string | null; notes: string | null }) => (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">{MONTHS[p.period_month - 1]} {p.period_year}</TableCell>
                       <TableCell className="capitalize">{p.employee_type}</TableCell>

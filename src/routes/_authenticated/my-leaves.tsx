@@ -106,9 +106,9 @@ function MyLeavesPage() {
   });
 
   const counts = {
-    pending: leaves?.filter((l) => l.status === "pending").length ?? 0,
-    approved: leaves?.filter((l) => l.status === "approved").length ?? 0,
-    rejected: leaves?.filter((l) => l.status === "rejected").length ?? 0,
+    pending: leaves?.filter((l: { status: string }) => l.status === "pending").length ?? 0,
+    approved: leaves?.filter((l: { status: string }) => l.status === "approved").length ?? 0,
+    rejected: leaves?.filter((l: { status: string }) => l.status === "rejected").length ?? 0,
   };
 
   return (
@@ -213,7 +213,7 @@ function MyLeavesPage() {
                 <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
               ) : !leaves?.length ? (
                 <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No leave requests yet.</TableCell></TableRow>
-              ) : leaves.map((l) => (
+              ) : leaves.map((l: { id: string; leave_type: string; start_date: string; end_date: string; reason: string; status: string; admin_comment: string | null }) => (
                 <TableRow key={l.id}>
                   <TableCell>{TYPE_LABEL[l.leave_type]}</TableCell>
                   <TableCell>{format(new Date(l.start_date), "PP")}</TableCell>

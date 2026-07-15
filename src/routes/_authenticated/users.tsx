@@ -169,7 +169,7 @@ function UsersPage() {
                   <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : users.length === 0 ? (
                   <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No users found.</TableCell></TableRow>
-                ) : users.map((u) => (
+                ) : users.map((u: { id: string; email: string; created_at: string | null; role: AppRole }) => (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">{u.email}</TableCell>
                     <TableCell className="text-muted-foreground text-sm">

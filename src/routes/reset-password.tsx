@@ -52,7 +52,7 @@ function ResetPasswordPage() {
 
   useEffect(() => {
     if (step !== "password") return;
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: object | null } }) => {
       if (!data.session) {
         toast.error("Your session expired, please request a new code.");
         setStep("code");
@@ -69,6 +69,7 @@ function ResetPasswordPage() {
     setLoading(true);
     try {
       const { access_token, refresh_token } = await verify({ data: parsed.data });
+      localStorage.setItem('mock-session-email', parsed.data.email.toLowerCase());
       const { error } = await supabase.auth.setSession({ access_token, refresh_token });
       if (error) throw error;
       setStep("password");

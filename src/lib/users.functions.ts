@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type AppRole = "super_admin" | "hr_admin" | "employee";
+type AppRole = "super_admin" | "hr_admin" | "employee" | "founder" | "finance";
 
 async function assertSuperAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase
@@ -39,7 +39,7 @@ export const listUsersWithRoles = createServerFn({ method: "GET" })
       roleMap.set(r.user_id, arr);
     }
 
-    return usersData.users.map((u) => {
+    return usersData.users.map((u: { id: string; email: string; created_at: string }) => {
       const userRoles = roleMap.get(u.id) ?? [];
       const priority: AppRole = userRoles.includes("super_admin")
         ? "super_admin"

@@ -5,19 +5,42 @@ import { supabase } from "@/integrations/supabase/client";
 export type AppRole = "super_admin" | "founder" | "finance" | "hr_admin" | "employee";
 
 export function useCurrentUser() {
-  const [userId, setUserId] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      const email = localStorage.getItem('mock-session-email');
+      if (email) {
+        const map: Record<string, string> = {
+          'admin@mysoclabs.com': 'dev-user-id',
+          'abebe@mysoclabs.com': 'user-abebe-001',
+          'chaltu@mysoclabs.com': 'user-chaltu-001',
+          'dawit@mysoclabs.com': 'user-dawit-001',
+          'fatima@mysoclabs.com': 'user-fatima-001',
+        };
+        return map[email.toLowerCase()] ?? null;
+      }
+    }
+    return null;
+  });
+  const [email, setEmail] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('mock-session-email');
+    return null;
+  });
   const [isResolved, setIsResolved] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(({ data }: { data: { user: { id: string; email: string } | null } }) => {
       setUserId(data.user?.id ?? null);
       setEmail(data.user?.email ?? null);
       setIsResolved(true);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUserId(session?.user?.id ?? null);
-      setEmail(session?.user?.email ?? null);
+    const { data: sub } = supabase.auth.onAuthStateChange((_e: string, session: { user: { id: string; email: string } | null } | null) => {
+      if (session?.user) {
+        setUserId(session.user.id ?? null);
+        setEmail(session.user.email ?? null);
+      } else {
+        setUserId(null);
+        setEmail(null);
+      }
       setIsResolved(true);
     });
     return () => sub.subscription.unsubscribe();
@@ -40,17 +63,16 @@ export function useUserRole() {
         .select("role")
         .eq("user_id", userId!);
       if (error) {
-        console.error("Failed to load user role, falling back to employee", error);
         return "employee";
       }
       if (!data?.length) return "employee";
-      const roles = data.map((r) => r.role as AppRole);
+      const roles = data.map((r: { role: string }) => r.role as AppRole);
       for (const r of PRIORITY) if (roles.includes(r)) return r;
       return "employee";
     },
   });
 
-  const role = !isResolved ? null : userId ? (query.data ?? "employee") : null;
+  const role = !isResolved ? null : userId ? (query.data ?? null) : null;
 
   return {
     role,

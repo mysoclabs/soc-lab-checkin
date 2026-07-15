@@ -33,7 +33,7 @@ function AuthPage() {
   const login = useServerFn(loginWithLockout);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: object | null } }) => {
       if (data.session) navigate({ to: "/", replace: true });
     });
   }, [navigate]);
@@ -53,6 +53,7 @@ function AuthPage() {
       const { access_token, refresh_token } = await login({
         data: { ...parsed.data, captchaToken: captchaToken ?? undefined },
       });
+      localStorage.setItem('mock-session-email', parsed.data.email.toLowerCase());
       const { error } = await supabase.auth.setSession({ access_token, refresh_token });
       if (error) throw error;
       toast.success("Welcome back");

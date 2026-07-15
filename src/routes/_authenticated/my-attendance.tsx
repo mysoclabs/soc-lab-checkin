@@ -72,7 +72,7 @@ function MyAttendance() {
                   <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : rows.length === 0 ? (
                   <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No attendance records yet.</TableCell></TableRow>
-                ) : rows.map((r) => (
+                ) : rows.map((r: { id: string; date: string; check_in: string | null; check_out: string | null; status: string }) => (
                   <TableRow key={r.id}>
                     <TableCell>{r.date}</TableCell>
                     <TableCell>{r.check_in ? format(new Date(r.check_in), "HH:mm") : "—"}</TableCell>

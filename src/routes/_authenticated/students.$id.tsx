@@ -41,7 +41,7 @@ function EmployeeProfile() {
       .catch(console.error);
 
     if (employee.photo_url) {
-      supabase.storage.from("employee-photos").createSignedUrl(employee.photo_url, 3600).then(({ data }) => {
+      supabase.storage.from("employee-photos").createSignedUrl(employee.photo_url, 3600).then(({ data }: { data: { signedUrl: string } | null }) => {
         setPhotoUrl(data?.signedUrl ?? null);
       });
     } else {

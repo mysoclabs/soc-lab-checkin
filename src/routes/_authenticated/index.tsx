@@ -51,7 +51,7 @@ async function loadStats(): Promise<Stats> {
   const totalStudents = total ?? 0;
   const present = todayAtt?.length ?? 0;
   const late =
-    todayAtt?.filter((a) => {
+    todayAtt?.filter((a: { check_in: string | null; status: string }) => {
       if (!a.check_in) return false;
       const t = new Date(a.check_in).toTimeString().slice(0, 8);
       return t > LATE_CUTOFF;
@@ -76,7 +76,7 @@ async function loadTrends() {
   ]);
 
   const total = totalEmployees ?? 0;
-  const all = rows ?? [];
+  const all: { date: string; check_in: string | null }[] = rows ?? [];
 
   // Daily: last 7 days
   const daily = eachDayOfInterval({ start: subDays(today, 6), end: today }).map((d) => {
@@ -136,7 +136,7 @@ function Dashboard() {
     refetchInterval: 30000,
     queryFn: async () => {
       const { data } = await supabase.from("leave_requests").select("status");
-      const rows = data ?? [];
+      const rows: { status: string }[] = data ?? [];
       return {
         total: rows.length,
         pending: rows.filter((r) => r.status === "pending").length,
@@ -205,7 +205,7 @@ function Dashboard() {
         <StatCard title="Late Entries" value={data?.late ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Leave Requests" value={leaveStats?.total ?? 0} icon={CalendarDays} tone="bg-primary/15 text-primary" />
         <StatCard title="Pending Leaves" value={leaveStats?.pending ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
         <StatCard title="Approved Leaves" value={leaveStats?.approved ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
@@ -214,13 +214,13 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><PartyPopper className="h-4 w-4" /> Upcoming Holidays</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-3 text-base"><PartyPopper className="h-4 w-4" /> Upcoming Holidays</CardTitle></CardHeader>
           <CardContent>
             {upcomingHolidays.length === 0 ? (
               <p className="text-sm text-muted-foreground">No upcoming holidays.</p>
             ) : (
               <ul className="space-y-2">
-                {upcomingHolidays.map((h) => (
+                {upcomingHolidays.map((h: { id: string; name: string; date: string }) => (
                   <li key={h.id} className="flex items-center justify-between text-sm">
                     <span className="font-medium">{h.name}</span>
                     <span className="text-muted-foreground">{format(new Date(h.date), "MMM d")}</span>
@@ -232,13 +232,13 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarDays className="h-4 w-4" /> Employees On Leave Today</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-3 text-base"><CalendarDays className="h-4 w-4" /> Employees On Leave Today</CardTitle></CardHeader>
           <CardContent>
             {employeesOnLeave.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nobody on leave today.</p>
             ) : (
               <ul className="space-y-2">
-                {employeesOnLeave.map((l) => (
+                {employeesOnLeave.map((l: { id: string; leave_type: string; students: { name: string; student_id: string } | null }) => (
                   <li key={l.id} className="flex items-center justify-between text-sm">
                     <span className="font-medium">{l.students?.name ?? "—"}</span>
                     <Badge variant="secondary" className="capitalize">{l.leave_type}</Badge>
@@ -250,7 +250,7 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Clock className="h-4 w-4" /> Shift Summary</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-3 text-base"><Clock className="h-4 w-4" /> Shift Summary</CardTitle></CardHeader>
           <CardContent>
             {shiftSummary.length === 0 ? (
               <p className="text-sm text-muted-foreground">No shift assignments yet.</p>
@@ -378,7 +378,7 @@ function RecentActivitiesCard() {
           <p className="text-sm text-muted-foreground">No activity yet.</p>
         ) : (
           <ul className="divide-y divide-border">
-            {activities.map((a) => (
+            {activities.map((a: { id: string; action: string; user_name: string | null; entity: string; created_at: string }) => (
               <li key={a.id} className="flex items-center justify-between py-2">
                 <div>
                   <p className="text-sm font-medium capitalize">{a.action.replace(/_/g, " ")}</p>
@@ -411,7 +411,7 @@ function RecentNotificationsCard() {
           <p className="text-sm text-muted-foreground">No notifications.</p>
         ) : (
           <ul className="divide-y divide-border">
-            {notes.map((n) => (
+            {notes.map((n: { id: string; title: string; message: string | null; created_at: string }) => (
               <li key={n.id} className="flex items-start justify-between gap-3 py-2">
                 <div>
                   <p className="text-sm font-medium">{n.title}</p>
