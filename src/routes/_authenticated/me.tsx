@@ -68,7 +68,7 @@ function MyProfilePage() {
               )}
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-[180px_1fr_220px] md:items-start">
+            <div className="flex flex-col items-center gap-6 lg:grid lg:grid-cols-[180px_1fr_220px] lg:items-start">
               <div className="flex justify-center">
                 {photoUrl ? (
                   <img src={photoUrl} alt={employee.name} className="h-40 w-40 rounded-xl object-cover border border-border" />
@@ -78,18 +78,18 @@ function MyProfilePage() {
                   </div>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="w-full space-y-2 text-center lg:text-left">
                 <h2 className="text-xl font-semibold">{employee.name}</h2>
                 <p className="font-mono text-xs text-muted-foreground">{employee.student_id}</p>
-                <div className="flex flex-wrap gap-2 pt-1">
+                <div className="flex flex-wrap justify-center gap-2 pt-1 lg:justify-start">
                   {role && <Badge variant="secondary" className="bg-primary/15 text-primary">{ROLE_LABELS[role]}</Badge>}
                   {employee.department && <Badge variant="secondary">{employee.department}</Badge>}
                   {employee.designation && <Badge variant="outline">{employee.designation}</Badge>}
                 </div>
-                <dl className="mt-4 grid grid-cols-1 gap-y-2 text-sm sm:grid-cols-2">
-                  <div><dt className="text-muted-foreground">Email</dt><dd>{employee.email}</dd></div>
-                  <div><dt className="text-muted-foreground">Phone</dt><dd>{employee.phone ?? "—"}</dd></div>
-                  <div><dt className="text-muted-foreground">Joining Date</dt><dd>{employee.joining_date ?? "—"}</dd></div>
+                <dl className="mt-4 grid grid-cols-1 gap-y-2 gap-x-4 text-sm sm:grid-cols-2">
+                  <div className="min-w-0"><dt className="text-muted-foreground">Email</dt><dd className="truncate">{employee.email}</dd></div>
+                  <div className="min-w-0"><dt className="text-muted-foreground">Phone</dt><dd className="truncate">{employee.phone ?? "—"}</dd></div>
+                  <div className="min-w-0"><dt className="text-muted-foreground">Joining Date</dt><dd>{employee.joining_date ?? "—"}</dd></div>
                 </dl>
                 <Link to="/my-attendance" className="inline-flex items-center gap-1 pt-3 text-sm text-primary hover:underline">
                   <CalendarClock className="h-4 w-4" /> View my attendance history

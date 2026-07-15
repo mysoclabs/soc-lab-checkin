@@ -170,7 +170,7 @@ function LeavesAdminPage() {
         <p className="text-sm text-muted-foreground">Review and approve employee leave requests.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card><CardContent className="p-6"><p className="text-sm text-muted-foreground">Total Requests</p><p className="mt-2 text-3xl font-semibold">{counts.total}</p></CardContent></Card>
         <Card><CardContent className="p-6"><p className="text-sm text-muted-foreground">Pending</p><p className="mt-2 text-3xl font-semibold text-warning">{counts.pending}</p></CardContent></Card>
         <Card><CardContent className="p-6"><p className="text-sm text-muted-foreground">Approved</p><p className="mt-2 text-3xl font-semibold text-success">{counts.approved}</p></CardContent></Card>

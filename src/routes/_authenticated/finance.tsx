@@ -130,7 +130,7 @@ function DashboardTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
           <Card key={s.label}>
             <CardContent className="flex items-center justify-between p-4">
@@ -227,7 +227,7 @@ function PayrollTab() {
             <div className="space-y-3">
               <div className="space-y-1"><Label>Employee Name</Label>
                 <Input value={form.employee_name} onChange={(e) => setForm({ ...form, employee_name: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-1"><Label>Type</Label>
                   <Select value={form.employee_type} onValueChange={(v) => setForm({ ...form, employee_type: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>

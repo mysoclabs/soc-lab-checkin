@@ -205,7 +205,7 @@ function Dashboard() {
         <StatCard title="Late Entries" value={data?.late ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Leave Requests" value={leaveStats?.total ?? 0} icon={CalendarDays} tone="bg-primary/15 text-primary" />
         <StatCard title="Pending Leaves" value={leaveStats?.pending ?? 0} icon={Clock} tone="bg-warning/15 text-warning" />
         <StatCard title="Approved Leaves" value={leaveStats?.approved ?? 0} icon={UserCheck} tone="bg-success/15 text-success" />
@@ -214,7 +214,7 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><PartyPopper className="h-4 w-4" /> Upcoming Holidays</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-3 text-base"><PartyPopper className="h-4 w-4" /> Upcoming Holidays</CardTitle></CardHeader>
           <CardContent>
             {upcomingHolidays.length === 0 ? (
               <p className="text-sm text-muted-foreground">No upcoming holidays.</p>
@@ -232,7 +232,7 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><CalendarDays className="h-4 w-4" /> Employees On Leave Today</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-3 text-base"><CalendarDays className="h-4 w-4" /> Employees On Leave Today</CardTitle></CardHeader>
           <CardContent>
             {employeesOnLeave.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nobody on leave today.</p>
@@ -250,7 +250,7 @@ function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Clock className="h-4 w-4" /> Shift Summary</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-3 text-base"><Clock className="h-4 w-4" /> Shift Summary</CardTitle></CardHeader>
           <CardContent>
             {shiftSummary.length === 0 ? (
               <p className="text-sm text-muted-foreground">No shift assignments yet.</p>
