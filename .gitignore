@@ -37,3 +37,6 @@ dist-ssr
 *.sw?
 .vercel
 .env*
+
+# Git worktrees
+.worktrees/
