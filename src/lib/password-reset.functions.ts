@@ -28,7 +28,7 @@ export const verifyResetCode = createServerFn({ method: "POST" })
     const ip = getClientIp();
     const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();
 
-    const { data: recentFailures, error: countErr } = await supabaseAdmin
+    const { data: recentFailures, error: countErr } = await (supabaseAdmin as any)
       .from("password_reset_attempts")
       .select("id, created_at")
       .eq("email", email)
@@ -58,7 +58,7 @@ export const verifyResetCode = createServerFn({ method: "POST" })
       type: "recovery",
     });
 
-    await supabaseAdmin.from("password_reset_attempts").insert({
+    await (supabaseAdmin as any).from("password_reset_attempts").insert({
       email,
       ip_address: ip,
       success: !verifyError,

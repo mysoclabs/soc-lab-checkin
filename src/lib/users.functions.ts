@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type AppRole = "super_admin" | "hr_admin" | "employee";
+type AppRole = "super_admin" | "founder" | "finance" | "hr_admin" | "employee";
 
 async function assertSuperAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase

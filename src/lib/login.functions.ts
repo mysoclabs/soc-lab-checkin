@@ -29,7 +29,7 @@ export const loginWithLockout = createServerFn({ method: "POST" })
     const ip = getClientIp();
     const windowStart = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();
 
-    const { data: recentFailures, error: countErr } = await supabaseAdmin
+    const { data: recentFailures, error: countErr } = await (supabaseAdmin as any)
       .from("login_attempts")
       .select("id, created_at")
       .eq("email", email)
@@ -59,7 +59,7 @@ export const loginWithLockout = createServerFn({ method: "POST" })
       options: data.captchaToken ? { captchaToken: data.captchaToken } : undefined,
     });
 
-    await supabaseAdmin.from("login_attempts").insert({
+    await (supabaseAdmin as any).from("login_attempts").insert({
       email,
       ip_address: ip,
       success: !signInError,
