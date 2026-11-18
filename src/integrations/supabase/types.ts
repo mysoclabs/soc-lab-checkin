@@ -14,6 +14,289 @@ export type Database = {
   }
   public: {
     Tables: {
+      assessment_assignments: {
+        Row: {
+          assessment_id: string
+          created_at: string
+          email: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          assessment_id: string
+          created_at?: string
+          email: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          assessment_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_assignments_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_assignments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_attempts: {
+        Row: {
+          answers: Json
+          assessment_id: string
+          correct_count: number | null
+          current_index: number
+          email: string
+          id: string
+          manual_marks: Json
+          marked: Json
+          max_score: number | null
+          option_order: Json
+          passed: boolean | null
+          pending_review_count: number | null
+          percentage: number | null
+          question_order: Json
+          question_times: Json
+          score: number | null
+          skipped_count: number | null
+          started_at: string
+          status: string
+          submitted_at: string | null
+          time_taken_seconds: number | null
+          updated_at: string
+          user_id: string
+          wrong_count: number | null
+        }
+        Insert: {
+          answers?: Json
+          assessment_id: string
+          correct_count?: number | null
+          current_index?: number
+          email: string
+          id?: string
+          manual_marks?: Json
+          marked?: Json
+          max_score?: number | null
+          option_order?: Json
+          passed?: boolean | null
+          pending_review_count?: number | null
+          percentage?: number | null
+          question_order?: Json
+          question_times?: Json
+          score?: number | null
+          skipped_count?: number | null
+          started_at?: string
+          status?: string
+          submitted_at?: string | null
+          time_taken_seconds?: number | null
+          updated_at?: string
+          user_id: string
+          wrong_count?: number | null
+        }
+        Update: {
+          answers?: Json
+          assessment_id?: string
+          correct_count?: number | null
+          current_index?: number
+          email?: string
+          id?: string
+          manual_marks?: Json
+          marked?: Json
+          max_score?: number | null
+          option_order?: Json
+          passed?: boolean | null
+          pending_review_count?: number | null
+          percentage?: number | null
+          question_order?: Json
+          question_times?: Json
+          score?: number | null
+          skipped_count?: number | null
+          started_at?: string
+          status?: string
+          submitted_at?: string | null
+          time_taken_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+          wrong_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_attempts_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_events: {
+        Row: {
+          assessment_id: string
+          attempt_id: string
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          question_index: number | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          assessment_id: string
+          attempt_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          question_index?: number | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          assessment_id?: string
+          attempt_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          question_index?: number | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_events_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_events_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "assessment_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_questions: {
+        Row: {
+          assessment_id: string
+          correct: Json
+          created_at: string
+          id: string
+          image_url: string | null
+          marks: number
+          options: Json
+          position: number
+          prompt: string
+          required: boolean
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_id: string
+          correct?: Json
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          marks?: number
+          options?: Json
+          position?: number
+          prompt?: string
+          required?: boolean
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_id?: string
+          correct?: Json
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          marks?: number
+          options?: Json
+          position?: number
+          prompt?: string
+          required?: boolean
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_questions_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          available_from: string | null
+          created_at: string
+          created_by: string | null
+          department: string | null
+          description: string | null
+          due_at: string | null
+          duration_minutes: number
+          id: string
+          instructions: string | null
+          passing_percentage: number
+          published_at: string | null
+          settings: Json
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          available_from?: string | null
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          description?: string | null
+          due_at?: string | null
+          duration_minutes?: number
+          id?: string
+          instructions?: string | null
+          passing_percentage?: number
+          published_at?: string | null
+          settings?: Json
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          available_from?: string | null
+          created_at?: string
+          created_by?: string | null
+          department?: string | null
+          description?: string | null
+          due_at?: string | null
+          duration_minutes?: number
+          id?: string
+          instructions?: string | null
+          passing_percentage?: number
+          published_at?: string | null
+          settings?: Json
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           check_in: string | null
@@ -584,12 +867,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -613,11 +896,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -638,11 +921,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -663,11 +946,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -680,11 +963,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

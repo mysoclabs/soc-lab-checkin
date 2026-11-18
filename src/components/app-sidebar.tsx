@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode, IndianRupee,
+  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode, IndianRupee, GraduationCap,
 } from "lucide-react";
 const mysocLogo = { url: "/favicon.ico" };
 import {
@@ -30,6 +30,7 @@ const items: NavItem[] = [
   { title: "Leave Management", url: "/leaves", icon: CalendarDays, roles: ["super_admin", "hr_admin"] },
   { title: "Holidays", url: "/holidays", icon: PartyPopper, roles: ["super_admin", "hr_admin"] },
   { title: "Shifts", url: "/shifts", icon: Clock, roles: ["super_admin", "hr_admin"] },
+  { title: "Assessments", url: "/assessments", icon: GraduationCap, roles: ["super_admin"] },
   { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
   { title: "Audit Logs", url: "/audit-logs", icon: Shield, roles: ["super_admin", "hr_admin"] },
   { title: "Finance", url: "/finance", icon: Wallet, roles: ["super_admin", "founder", "finance"] },
@@ -37,6 +38,7 @@ const items: NavItem[] = [
   { title: "My QR", url: "/my-qr", icon: QrCode, roles: ["employee", "finance"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
   { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin"] },
+  { title: "My Assessments", url: "/my-assessments", icon: GraduationCap, roles: ["employee", "hr_admin", "founder", "finance"] },
   { title: "My Payroll", url: "/my-payroll", icon: IndianRupee, roles: ["employee"] },
 ];
 

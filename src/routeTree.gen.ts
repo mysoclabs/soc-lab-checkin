@@ -9,38 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
-import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
-import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
-import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
-import { Route as AuthenticatedMyQrRouteImport } from './routes/_authenticated/my-qr'
-import { Route as AuthenticatedMyPayrollRouteImport } from './routes/_authenticated/my-payroll'
-import { Route as AuthenticatedMyLeavesRouteImport } from './routes/_authenticated/my-leaves'
-import { Route as AuthenticatedMyAttendanceRouteImport } from './routes/_authenticated/my-attendance'
-import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
-import { Route as AuthenticatedLeavesRouteImport } from './routes/_authenticated/leaves'
-import { Route as AuthenticatedHolidaysRouteImport } from './routes/_authenticated/holidays'
-import { Route as AuthenticatedFinanceRouteImport } from './routes/_authenticated/finance'
-import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
+import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
+import { Route as AuthenticatedFinanceRouteImport } from './routes/_authenticated/finance'
+import { Route as AuthenticatedHolidaysRouteImport } from './routes/_authenticated/holidays'
+import { Route as AuthenticatedLeavesRouteImport } from './routes/_authenticated/leaves'
+import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
+import { Route as AuthenticatedMyAttendanceRouteImport } from './routes/_authenticated/my-attendance'
+import { Route as AuthenticatedMyLeavesRouteImport } from './routes/_authenticated/my-leaves'
+import { Route as AuthenticatedMyPayrollRouteImport } from './routes/_authenticated/my-payroll'
+import { Route as AuthenticatedMyQrRouteImport } from './routes/_authenticated/my-qr'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
+import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
+import { Route as AuthenticatedAssessmentsIndexRouteImport } from './routes/_authenticated/assessments.index'
+import { Route as AuthenticatedMyAssessmentsIndexRouteImport } from './routes/_authenticated/my-assessments.index'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
-import { Route as ApiCronAutoCheckoutRouteImport } from './routes/api/cron/auto-checkout'
-import { Route as AuthenticatedStudentsBulkQrRouteImport } from './routes/_authenticated/students.bulk-qr'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
+import { Route as AuthenticatedStudentsBulkQrRouteImport } from './routes/_authenticated/students.bulk-qr'
+import { Route as ApiCronAutoCheckoutRouteImport } from './routes/api/cron/auto-checkout'
+import { Route as AuthenticatedAssessmentsIdEditRouteImport } from './routes/_authenticated/assessments.$id.edit'
+import { Route as AuthenticatedAssessmentsIdResultsRouteImport } from './routes/_authenticated/assessments.$id.results'
+import { Route as AuthenticatedMyAssessmentsIdTakeRouteImport } from './routes/_authenticated/my-assessments.$id.take'
+import { Route as AuthenticatedMyAssessmentsResultAttemptIdRouteImport } from './routes/_authenticated/my-assessments.result.$attemptId'
+import { Route as AuthenticatedAssessmentsIdReportAttemptIdRouteImport } from './routes/_authenticated/assessments.$id.report.$attemptId'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -48,8 +49,14 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
@@ -57,39 +64,34 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
+const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
-  id: '/shifts',
-  path: '/shifts',
+const AuthenticatedAuditLogsRoute = AuthenticatedAuditLogsRouteImport.update({
+  id: '/audit-logs',
+  path: '/audit-logs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedScannerRoute = AuthenticatedScannerRouteImport.update({
-  id: '/scanner',
-  path: '/scanner',
+const AuthenticatedFinanceRoute = AuthenticatedFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
-  id: '/reports',
-  path: '/reports',
+const AuthenticatedHolidaysRoute = AuthenticatedHolidaysRouteImport.update({
+  id: '/holidays',
+  path: '/holidays',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedMyQrRoute = AuthenticatedMyQrRouteImport.update({
-  id: '/my-qr',
-  path: '/my-qr',
+const AuthenticatedLeavesRoute = AuthenticatedLeavesRouteImport.update({
+  id: '/leaves',
+  path: '/leaves',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedMyPayrollRoute = AuthenticatedMyPayrollRouteImport.update({
-  id: '/my-payroll',
-  path: '/my-payroll',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedMyLeavesRoute = AuthenticatedMyLeavesRouteImport.update({
-  id: '/my-leaves',
-  path: '/my-leaves',
+const AuthenticatedMeRoute = AuthenticatedMeRouteImport.update({
+  id: '/me',
+  path: '/me',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMyAttendanceRoute =
@@ -98,51 +100,57 @@ const AuthenticatedMyAttendanceRoute =
     path: '/my-attendance',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedMeRoute = AuthenticatedMeRouteImport.update({
-  id: '/me',
-  path: '/me',
+const AuthenticatedMyLeavesRoute = AuthenticatedMyLeavesRouteImport.update({
+  id: '/my-leaves',
+  path: '/my-leaves',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedLeavesRoute = AuthenticatedLeavesRouteImport.update({
-  id: '/leaves',
-  path: '/leaves',
+const AuthenticatedMyPayrollRoute = AuthenticatedMyPayrollRouteImport.update({
+  id: '/my-payroll',
+  path: '/my-payroll',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedHolidaysRoute = AuthenticatedHolidaysRouteImport.update({
-  id: '/holidays',
-  path: '/holidays',
+const AuthenticatedMyQrRoute = AuthenticatedMyQrRouteImport.update({
+  id: '/my-qr',
+  path: '/my-qr',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedFinanceRoute = AuthenticatedFinanceRouteImport.update({
-  id: '/finance',
-  path: '/finance',
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAuditLogsRoute = AuthenticatedAuditLogsRouteImport.update({
-  id: '/audit-logs',
-  path: '/audit-logs',
+const AuthenticatedScannerRoute = AuthenticatedScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
-  id: '/attendance',
-  path: '/attendance',
+const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
+  id: '/shifts',
+  path: '/shifts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssessmentsIndexRoute =
+  AuthenticatedAssessmentsIndexRouteImport.update({
+    id: '/assessments/',
+    path: '/assessments/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMyAssessmentsIndexRoute =
+  AuthenticatedMyAssessmentsIndexRouteImport.update({
+    id: '/my-assessments/',
+    path: '/my-assessments/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudentsIndexRoute =
   AuthenticatedStudentsIndexRouteImport.update({
     id: '/students/',
     path: '/students/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const ApiCronAutoCheckoutRoute = ApiCronAutoCheckoutRouteImport.update({
-  id: '/api/cron/auto-checkout',
-  path: '/api/cron/auto-checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedStudentsBulkQrRoute =
-  AuthenticatedStudentsBulkQrRouteImport.update({
-    id: '/students/bulk-qr',
-    path: '/students/bulk-qr',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
@@ -150,6 +158,47 @@ const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
   path: '/students/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedStudentsBulkQrRoute =
+  AuthenticatedStudentsBulkQrRouteImport.update({
+    id: '/students/bulk-qr',
+    path: '/students/bulk-qr',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiCronAutoCheckoutRoute = ApiCronAutoCheckoutRouteImport.update({
+  id: '/api/cron/auto-checkout',
+  path: '/api/cron/auto-checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAssessmentsIdEditRoute =
+  AuthenticatedAssessmentsIdEditRouteImport.update({
+    id: '/assessments/$id/edit',
+    path: '/assessments/$id/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAssessmentsIdResultsRoute =
+  AuthenticatedAssessmentsIdResultsRouteImport.update({
+    id: '/assessments/$id/results',
+    path: '/assessments/$id/results',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMyAssessmentsIdTakeRoute =
+  AuthenticatedMyAssessmentsIdTakeRouteImport.update({
+    id: '/my-assessments/$id/take',
+    path: '/my-assessments/$id/take',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMyAssessmentsResultAttemptIdRoute =
+  AuthenticatedMyAssessmentsResultAttemptIdRouteImport.update({
+    id: '/my-assessments/result/$attemptId',
+    path: '/my-assessments/result/$attemptId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAssessmentsIdReportAttemptIdRoute =
+  AuthenticatedAssessmentsIdReportAttemptIdRouteImport.update({
+    id: '/assessments/$id/report/$attemptId',
+    path: '/assessments/$id/report/$attemptId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -173,7 +222,14 @@ export interface FileRoutesByFullPath {
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
+  '/assessments/': typeof AuthenticatedAssessmentsIndexRoute
+  '/my-assessments/': typeof AuthenticatedMyAssessmentsIndexRoute
   '/students/': typeof AuthenticatedStudentsIndexRoute
+  '/assessments/$id/edit': typeof AuthenticatedAssessmentsIdEditRoute
+  '/assessments/$id/results': typeof AuthenticatedAssessmentsIdResultsRoute
+  '/my-assessments/$id/take': typeof AuthenticatedMyAssessmentsIdTakeRoute
+  '/my-assessments/result/$attemptId': typeof AuthenticatedMyAssessmentsResultAttemptIdRoute
+  '/assessments/$id/report/$attemptId': typeof AuthenticatedAssessmentsIdReportAttemptIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -197,7 +253,14 @@ export interface FileRoutesByTo {
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
+  '/assessments': typeof AuthenticatedAssessmentsIndexRoute
+  '/my-assessments': typeof AuthenticatedMyAssessmentsIndexRoute
   '/students': typeof AuthenticatedStudentsIndexRoute
+  '/assessments/$id/edit': typeof AuthenticatedAssessmentsIdEditRoute
+  '/assessments/$id/results': typeof AuthenticatedAssessmentsIdResultsRoute
+  '/my-assessments/$id/take': typeof AuthenticatedMyAssessmentsIdTakeRoute
+  '/my-assessments/result/$attemptId': typeof AuthenticatedMyAssessmentsResultAttemptIdRoute
+  '/assessments/$id/report/$attemptId': typeof AuthenticatedAssessmentsIdReportAttemptIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -223,7 +286,14 @@ export interface FileRoutesById {
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
   '/_authenticated/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
+  '/_authenticated/assessments/': typeof AuthenticatedAssessmentsIndexRoute
+  '/_authenticated/my-assessments/': typeof AuthenticatedMyAssessmentsIndexRoute
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
+  '/_authenticated/assessments/$id/edit': typeof AuthenticatedAssessmentsIdEditRoute
+  '/_authenticated/assessments/$id/results': typeof AuthenticatedAssessmentsIdResultsRoute
+  '/_authenticated/my-assessments/$id/take': typeof AuthenticatedMyAssessmentsIdTakeRoute
+  '/_authenticated/my-assessments/result/$attemptId': typeof AuthenticatedMyAssessmentsResultAttemptIdRoute
+  '/_authenticated/assessments/$id/report/$attemptId': typeof AuthenticatedAssessmentsIdReportAttemptIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -249,7 +319,14 @@ export interface FileRouteTypes {
     | '/students/$id'
     | '/students/bulk-qr'
     | '/api/cron/auto-checkout'
+    | '/assessments/'
+    | '/my-assessments/'
     | '/students/'
+    | '/assessments/$id/edit'
+    | '/assessments/$id/results'
+    | '/my-assessments/$id/take'
+    | '/my-assessments/result/$attemptId'
+    | '/assessments/$id/report/$attemptId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -273,7 +350,14 @@ export interface FileRouteTypes {
     | '/students/$id'
     | '/students/bulk-qr'
     | '/api/cron/auto-checkout'
+    | '/assessments'
+    | '/my-assessments'
     | '/students'
+    | '/assessments/$id/edit'
+    | '/assessments/$id/results'
+    | '/my-assessments/$id/take'
+    | '/my-assessments/result/$attemptId'
+    | '/assessments/$id/report/$attemptId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -298,7 +382,14 @@ export interface FileRouteTypes {
     | '/_authenticated/students/$id'
     | '/_authenticated/students/bulk-qr'
     | '/api/cron/auto-checkout'
+    | '/_authenticated/assessments/'
+    | '/_authenticated/my-assessments/'
     | '/_authenticated/students/'
+    | '/_authenticated/assessments/$id/edit'
+    | '/_authenticated/assessments/$id/results'
+    | '/_authenticated/my-assessments/$id/take'
+    | '/_authenticated/my-assessments/result/$attemptId'
+    | '/_authenticated/assessments/$id/report/$attemptId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -311,18 +402,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -332,11 +416,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/': {
@@ -346,88 +437,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/users': {
-      id: '/_authenticated/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthenticatedUsersRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/shifts': {
-      id: '/_authenticated/shifts'
-      path: '/shifts'
-      fullPath: '/shifts'
-      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/scanner': {
-      id: '/_authenticated/scanner'
-      path: '/scanner'
-      fullPath: '/scanner'
-      preLoaderRoute: typeof AuthenticatedScannerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/reports': {
-      id: '/_authenticated/reports'
-      path: '/reports'
-      fullPath: '/reports'
-      preLoaderRoute: typeof AuthenticatedReportsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/my-qr': {
-      id: '/_authenticated/my-qr'
-      path: '/my-qr'
-      fullPath: '/my-qr'
-      preLoaderRoute: typeof AuthenticatedMyQrRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/my-payroll': {
-      id: '/_authenticated/my-payroll'
-      path: '/my-payroll'
-      fullPath: '/my-payroll'
-      preLoaderRoute: typeof AuthenticatedMyPayrollRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/my-leaves': {
-      id: '/_authenticated/my-leaves'
-      path: '/my-leaves'
-      fullPath: '/my-leaves'
-      preLoaderRoute: typeof AuthenticatedMyLeavesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/my-attendance': {
-      id: '/_authenticated/my-attendance'
-      path: '/my-attendance'
-      fullPath: '/my-attendance'
-      preLoaderRoute: typeof AuthenticatedMyAttendanceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/me': {
-      id: '/_authenticated/me'
-      path: '/me'
-      fullPath: '/me'
-      preLoaderRoute: typeof AuthenticatedMeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/leaves': {
-      id: '/_authenticated/leaves'
-      path: '/leaves'
-      fullPath: '/leaves'
-      preLoaderRoute: typeof AuthenticatedLeavesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/holidays': {
-      id: '/_authenticated/holidays'
-      path: '/holidays'
-      fullPath: '/holidays'
-      preLoaderRoute: typeof AuthenticatedHolidaysRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/finance': {
-      id: '/_authenticated/finance'
-      path: '/finance'
-      fullPath: '/finance'
-      preLoaderRoute: typeof AuthenticatedFinanceRouteImport
+    '/_authenticated/attendance': {
+      id: '/_authenticated/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/audit-logs': {
@@ -437,11 +451,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditLogsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/attendance': {
-      id: '/_authenticated/attendance'
-      path: '/attendance'
-      fullPath: '/attendance'
-      preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
+    '/_authenticated/finance': {
+      id: '/_authenticated/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof AuthenticatedFinanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/holidays': {
+      id: '/_authenticated/holidays'
+      path: '/holidays'
+      fullPath: '/holidays'
+      preLoaderRoute: typeof AuthenticatedHolidaysRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/leaves': {
+      id: '/_authenticated/leaves'
+      path: '/leaves'
+      fullPath: '/leaves'
+      preLoaderRoute: typeof AuthenticatedLeavesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/me': {
+      id: '/_authenticated/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof AuthenticatedMeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-attendance': {
+      id: '/_authenticated/my-attendance'
+      path: '/my-attendance'
+      fullPath: '/my-attendance'
+      preLoaderRoute: typeof AuthenticatedMyAttendanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-leaves': {
+      id: '/_authenticated/my-leaves'
+      path: '/my-leaves'
+      fullPath: '/my-leaves'
+      preLoaderRoute: typeof AuthenticatedMyLeavesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-payroll': {
+      id: '/_authenticated/my-payroll'
+      path: '/my-payroll'
+      fullPath: '/my-payroll'
+      preLoaderRoute: typeof AuthenticatedMyPayrollRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-qr': {
+      id: '/_authenticated/my-qr'
+      path: '/my-qr'
+      fullPath: '/my-qr'
+      preLoaderRoute: typeof AuthenticatedMyQrRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/scanner': {
+      id: '/_authenticated/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof AuthenticatedScannerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shifts': {
+      id: '/_authenticated/shifts'
+      path: '/shifts'
+      fullPath: '/shifts'
+      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assessments/': {
+      id: '/_authenticated/assessments/'
+      path: '/assessments'
+      fullPath: '/assessments/'
+      preLoaderRoute: typeof AuthenticatedAssessmentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-assessments/': {
+      id: '/_authenticated/my-assessments/'
+      path: '/my-assessments'
+      fullPath: '/my-assessments/'
+      preLoaderRoute: typeof AuthenticatedMyAssessmentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/students/': {
@@ -451,12 +556,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/cron/auto-checkout': {
-      id: '/api/cron/auto-checkout'
-      path: '/api/cron/auto-checkout'
-      fullPath: '/api/cron/auto-checkout'
-      preLoaderRoute: typeof ApiCronAutoCheckoutRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/students/$id': {
+      id: '/_authenticated/students/$id'
+      path: '/students/$id'
+      fullPath: '/students/$id'
+      preLoaderRoute: typeof AuthenticatedStudentsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/students/bulk-qr': {
       id: '/_authenticated/students/bulk-qr'
@@ -465,11 +570,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsBulkQrRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/students/$id': {
-      id: '/_authenticated/students/$id'
-      path: '/students/$id'
-      fullPath: '/students/$id'
-      preLoaderRoute: typeof AuthenticatedStudentsIdRouteImport
+    '/api/cron/auto-checkout': {
+      id: '/api/cron/auto-checkout'
+      path: '/api/cron/auto-checkout'
+      fullPath: '/api/cron/auto-checkout'
+      preLoaderRoute: typeof ApiCronAutoCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/assessments/$id/edit': {
+      id: '/_authenticated/assessments/$id/edit'
+      path: '/assessments/$id/edit'
+      fullPath: '/assessments/$id/edit'
+      preLoaderRoute: typeof AuthenticatedAssessmentsIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assessments/$id/results': {
+      id: '/_authenticated/assessments/$id/results'
+      path: '/assessments/$id/results'
+      fullPath: '/assessments/$id/results'
+      preLoaderRoute: typeof AuthenticatedAssessmentsIdResultsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-assessments/$id/take': {
+      id: '/_authenticated/my-assessments/$id/take'
+      path: '/my-assessments/$id/take'
+      fullPath: '/my-assessments/$id/take'
+      preLoaderRoute: typeof AuthenticatedMyAssessmentsIdTakeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-assessments/result/$attemptId': {
+      id: '/_authenticated/my-assessments/result/$attemptId'
+      path: '/my-assessments/result/$attemptId'
+      fullPath: '/my-assessments/result/$attemptId'
+      preLoaderRoute: typeof AuthenticatedMyAssessmentsResultAttemptIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assessments/$id/report/$attemptId': {
+      id: '/_authenticated/assessments/$id/report/$attemptId'
+      path: '/assessments/$id/report/$attemptId'
+      fullPath: '/assessments/$id/report/$attemptId'
+      preLoaderRoute: typeof AuthenticatedAssessmentsIdReportAttemptIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -493,7 +633,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedStudentsIdRoute: typeof AuthenticatedStudentsIdRoute
   AuthenticatedStudentsBulkQrRoute: typeof AuthenticatedStudentsBulkQrRoute
+  AuthenticatedAssessmentsIndexRoute: typeof AuthenticatedAssessmentsIndexRoute
+  AuthenticatedMyAssessmentsIndexRoute: typeof AuthenticatedMyAssessmentsIndexRoute
   AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
+  AuthenticatedAssessmentsIdEditRoute: typeof AuthenticatedAssessmentsIdEditRoute
+  AuthenticatedAssessmentsIdResultsRoute: typeof AuthenticatedAssessmentsIdResultsRoute
+  AuthenticatedMyAssessmentsIdTakeRoute: typeof AuthenticatedMyAssessmentsIdTakeRoute
+  AuthenticatedMyAssessmentsResultAttemptIdRoute: typeof AuthenticatedMyAssessmentsResultAttemptIdRoute
+  AuthenticatedAssessmentsIdReportAttemptIdRoute: typeof AuthenticatedAssessmentsIdReportAttemptIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -514,7 +661,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedStudentsIdRoute: AuthenticatedStudentsIdRoute,
   AuthenticatedStudentsBulkQrRoute: AuthenticatedStudentsBulkQrRoute,
+  AuthenticatedAssessmentsIndexRoute: AuthenticatedAssessmentsIndexRoute,
+  AuthenticatedMyAssessmentsIndexRoute: AuthenticatedMyAssessmentsIndexRoute,
   AuthenticatedStudentsIndexRoute: AuthenticatedStudentsIndexRoute,
+  AuthenticatedAssessmentsIdEditRoute: AuthenticatedAssessmentsIdEditRoute,
+  AuthenticatedAssessmentsIdResultsRoute:
+    AuthenticatedAssessmentsIdResultsRoute,
+  AuthenticatedMyAssessmentsIdTakeRoute: AuthenticatedMyAssessmentsIdTakeRoute,
+  AuthenticatedMyAssessmentsResultAttemptIdRoute:
+    AuthenticatedMyAssessmentsResultAttemptIdRoute,
+  AuthenticatedAssessmentsIdReportAttemptIdRoute:
+    AuthenticatedAssessmentsIdReportAttemptIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
