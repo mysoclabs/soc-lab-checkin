@@ -38,7 +38,6 @@ const items: NavItem[] = [
   { title: "My QR", url: "/my-qr", icon: QrCode, roles: ["employee", "finance"] },
   { title: "My Attendance", url: "/my-attendance", icon: CalendarClock, roles: ["employee"] },
   { title: "My Leaves", url: "/my-leaves", icon: CalendarDays, roles: ["employee", "hr_admin"] },
-  { title: "My Assessments", url: "/my-assessments", icon: GraduationCap, roles: ["employee", "hr_admin", "founder", "finance"] },
   { title: "My Payroll", url: "/my-payroll", icon: IndianRupee, roles: ["employee"] },
 ];
 
