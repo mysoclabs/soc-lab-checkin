@@ -30,7 +30,6 @@ const items: NavItem[] = [
   { title: "Leave Management", url: "/leaves", icon: CalendarDays, roles: ["super_admin", "hr_admin"] },
   { title: "Holidays", url: "/holidays", icon: PartyPopper, roles: ["super_admin", "hr_admin"] },
   { title: "Shifts", url: "/shifts", icon: Clock, roles: ["super_admin", "hr_admin"] },
-  { title: "Assessments", url: "/assessments", icon: GraduationCap, roles: ["super_admin"] },
   { title: "Users & Roles", url: "/users", icon: ShieldCheck, roles: ["super_admin"] },
   { title: "Audit Logs", url: "/audit-logs", icon: Shield, roles: ["super_admin", "hr_admin"] },
   { title: "Finance", url: "/finance", icon: Wallet, roles: ["super_admin", "founder", "finance"] },
