@@ -744,6 +744,290 @@ export type Database = {
           },
         ]
       }
+      pip_checkins: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          hr_feedback: string | null
+          id: string
+          pip_id: string
+          progress_percent: number
+          rating: number | null
+          scheduled_date: string
+          shared_summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          hr_feedback?: string | null
+          id?: string
+          pip_id: string
+          progress_percent?: number
+          rating?: number | null
+          scheduled_date: string
+          shared_summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          hr_feedback?: string | null
+          id?: string
+          pip_id?: string
+          progress_percent?: number
+          rating?: number | null
+          scheduled_date?: string
+          shared_summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_checkins_pip_id_fkey"
+            columns: ["pip_id"]
+            isOneToOne: false
+            referencedRelation: "pip_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pip_employee_responses: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          pip_id: string
+          response: string | null
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          pip_id: string
+          response?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          pip_id?: string
+          response?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_employee_responses_pip_id_fkey"
+            columns: ["pip_id"]
+            isOneToOne: true
+            referencedRelation: "pip_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pip_goals: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          kpi: string
+          pip_id: string
+          position: number
+          progress_percent: number
+          rating: number | null
+          shared_feedback: string | null
+          status: string
+          supporting_evidence: string | null
+          target: string
+          title: string
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          kpi: string
+          pip_id: string
+          position?: number
+          progress_percent?: number
+          rating?: number | null
+          shared_feedback?: string | null
+          status?: string
+          supporting_evidence?: string | null
+          target: string
+          title: string
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          kpi?: string
+          pip_id?: string
+          position?: number
+          progress_percent?: number
+          rating?: number | null
+          shared_feedback?: string | null
+          status?: string
+          supporting_evidence?: string | null
+          target?: string
+          title?: string
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_goals_pip_id_fkey"
+            columns: ["pip_id"]
+            isOneToOne: false
+            referencedRelation: "pip_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pip_internal_notes: {
+        Row: {
+          author_email: string
+          checkin_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          note: string
+          pip_id: string
+        }
+        Insert: {
+          author_email: string
+          checkin_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          note: string
+          pip_id: string
+        }
+        Update: {
+          author_email?: string
+          checkin_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          note?: string
+          pip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_internal_notes_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "pip_checkins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pip_internal_notes_pip_id_fkey"
+            columns: ["pip_id"]
+            isOneToOne: false
+            referencedRelation: "pip_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pip_records: {
+        Row: {
+          close_reason: string | null
+          closed_at: string | null
+          created_at: string
+          created_by: string
+          department: string | null
+          designation: string | null
+          duration_days: number
+          employee_email: string
+          employee_id: string | null
+          employee_name: string
+          end_date: string
+          focus_areas: string[]
+          hr_owner_email: string
+          hr_owner_user_id: string
+          id: string
+          performance_concerns: string
+          progress_percent: number
+          published_at: string | null
+          review_frequency_days: number
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          close_reason?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by: string
+          department?: string | null
+          designation?: string | null
+          duration_days: number
+          employee_email: string
+          employee_id?: string | null
+          employee_name: string
+          end_date: string
+          focus_areas?: string[]
+          hr_owner_email: string
+          hr_owner_user_id: string
+          id?: string
+          performance_concerns: string
+          progress_percent?: number
+          published_at?: string | null
+          review_frequency_days?: number
+          start_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          close_reason?: string | null
+          closed_at?: string | null
+          created_at?: string
+          created_by?: string
+          department?: string | null
+          designation?: string | null
+          duration_days?: number
+          employee_email?: string
+          employee_id?: string | null
+          employee_name?: string
+          end_date?: string
+          focus_areas?: string[]
+          hr_owner_email?: string
+          hr_owner_user_id?: string
+          id?: string
+          performance_concerns?: string
+          progress_percent?: number
+          published_at?: string | null
+          review_frequency_days?: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       revenues: {
         Row: {
           amount: number
