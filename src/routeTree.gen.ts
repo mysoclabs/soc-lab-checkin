@@ -23,6 +23,7 @@ import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedMyAttendanceRouteImport } from './routes/_authenticated/my-attendance'
 import { Route as AuthenticatedMyLeavesRouteImport } from './routes/_authenticated/my-leaves'
 import { Route as AuthenticatedMyPayrollRouteImport } from './routes/_authenticated/my-payroll'
+import { Route as AuthenticatedMyPipRouteImport } from './routes/_authenticated/my-pip'
 import { Route as AuthenticatedMyQrRouteImport } from './routes/_authenticated/my-qr'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
@@ -30,6 +31,8 @@ import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedAssessmentsIndexRouteImport } from './routes/_authenticated/assessments.index'
 import { Route as AuthenticatedMyAssessmentsIndexRouteImport } from './routes/_authenticated/my-assessments.index'
+import { Route as AuthenticatedPipIndexRouteImport } from './routes/_authenticated/pip.index'
+import { Route as AuthenticatedPipIdRouteImport } from './routes/_authenticated/pip.$id'
 import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authenticated/students.index'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedStudentsBulkQrRouteImport } from './routes/_authenticated/students.bulk-qr'
@@ -110,6 +113,11 @@ const AuthenticatedMyPayrollRoute = AuthenticatedMyPayrollRouteImport.update({
   path: '/my-payroll',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyPipRoute = AuthenticatedMyPipRouteImport.update({
+  id: '/my-pip',
+  path: '/my-pip',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyQrRoute = AuthenticatedMyQrRouteImport.update({
   id: '/my-qr',
   path: '/my-qr',
@@ -147,6 +155,16 @@ const AuthenticatedMyAssessmentsIndexRoute =
     path: '/my-assessments/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPipIndexRoute = AuthenticatedPipIndexRouteImport.update({
+  id: '/pip/',
+  path: '/pip/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPipIdRoute = AuthenticatedPipIdRouteImport.update({
+  id: '/pip/$id',
+  path: '/pip/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudentsIndexRoute =
   AuthenticatedStudentsIndexRouteImport.update({
     id: '/students/',
@@ -214,16 +232,19 @@ export interface FileRoutesByFullPath {
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
   '/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/my-payroll': typeof AuthenticatedMyPayrollRoute
+  '/my-pip': typeof AuthenticatedMyPipRoute
   '/my-qr': typeof AuthenticatedMyQrRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/users': typeof AuthenticatedUsersRoute
+  '/pip/$id': typeof AuthenticatedPipIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
   '/assessments/': typeof AuthenticatedAssessmentsIndexRoute
   '/my-assessments/': typeof AuthenticatedMyAssessmentsIndexRoute
+  '/pip/': typeof AuthenticatedPipIndexRoute
   '/students/': typeof AuthenticatedStudentsIndexRoute
   '/assessments/$id/edit': typeof AuthenticatedAssessmentsIdEditRoute
   '/assessments/$id/results': typeof AuthenticatedAssessmentsIdResultsRoute
@@ -244,17 +265,20 @@ export interface FileRoutesByTo {
   '/my-attendance': typeof AuthenticatedMyAttendanceRoute
   '/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/my-payroll': typeof AuthenticatedMyPayrollRoute
+  '/my-pip': typeof AuthenticatedMyPipRoute
   '/my-qr': typeof AuthenticatedMyQrRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/scanner': typeof AuthenticatedScannerRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/users': typeof AuthenticatedUsersRoute
   '/': typeof AuthenticatedIndexRoute
+  '/pip/$id': typeof AuthenticatedPipIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
   '/assessments': typeof AuthenticatedAssessmentsIndexRoute
   '/my-assessments': typeof AuthenticatedMyAssessmentsIndexRoute
+  '/pip': typeof AuthenticatedPipIndexRoute
   '/students': typeof AuthenticatedStudentsIndexRoute
   '/assessments/$id/edit': typeof AuthenticatedAssessmentsIdEditRoute
   '/assessments/$id/results': typeof AuthenticatedAssessmentsIdResultsRoute
@@ -277,17 +301,20 @@ export interface FileRoutesById {
   '/_authenticated/my-attendance': typeof AuthenticatedMyAttendanceRoute
   '/_authenticated/my-leaves': typeof AuthenticatedMyLeavesRoute
   '/_authenticated/my-payroll': typeof AuthenticatedMyPayrollRoute
+  '/_authenticated/my-pip': typeof AuthenticatedMyPipRoute
   '/_authenticated/my-qr': typeof AuthenticatedMyQrRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/scanner': typeof AuthenticatedScannerRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/pip/$id': typeof AuthenticatedPipIdRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
   '/_authenticated/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
   '/_authenticated/assessments/': typeof AuthenticatedAssessmentsIndexRoute
   '/_authenticated/my-assessments/': typeof AuthenticatedMyAssessmentsIndexRoute
+  '/_authenticated/pip/': typeof AuthenticatedPipIndexRoute
   '/_authenticated/students/': typeof AuthenticatedStudentsIndexRoute
   '/_authenticated/assessments/$id/edit': typeof AuthenticatedAssessmentsIdEditRoute
   '/_authenticated/assessments/$id/results': typeof AuthenticatedAssessmentsIdResultsRoute
@@ -311,16 +338,19 @@ export interface FileRouteTypes {
     | '/my-attendance'
     | '/my-leaves'
     | '/my-payroll'
+    | '/my-pip'
     | '/my-qr'
     | '/reports'
     | '/scanner'
     | '/shifts'
     | '/users'
+    | '/pip/$id'
     | '/students/$id'
     | '/students/bulk-qr'
     | '/api/cron/auto-checkout'
     | '/assessments/'
     | '/my-assessments/'
+    | '/pip/'
     | '/students/'
     | '/assessments/$id/edit'
     | '/assessments/$id/results'
@@ -341,17 +371,20 @@ export interface FileRouteTypes {
     | '/my-attendance'
     | '/my-leaves'
     | '/my-payroll'
+    | '/my-pip'
     | '/my-qr'
     | '/reports'
     | '/scanner'
     | '/shifts'
     | '/users'
     | '/'
+    | '/pip/$id'
     | '/students/$id'
     | '/students/bulk-qr'
     | '/api/cron/auto-checkout'
     | '/assessments'
     | '/my-assessments'
+    | '/pip'
     | '/students'
     | '/assessments/$id/edit'
     | '/assessments/$id/results'
@@ -373,17 +406,20 @@ export interface FileRouteTypes {
     | '/_authenticated/my-attendance'
     | '/_authenticated/my-leaves'
     | '/_authenticated/my-payroll'
+    | '/_authenticated/my-pip'
     | '/_authenticated/my-qr'
     | '/_authenticated/reports'
     | '/_authenticated/scanner'
     | '/_authenticated/shifts'
     | '/_authenticated/users'
     | '/_authenticated/'
+    | '/_authenticated/pip/$id'
     | '/_authenticated/students/$id'
     | '/_authenticated/students/bulk-qr'
     | '/api/cron/auto-checkout'
     | '/_authenticated/assessments/'
     | '/_authenticated/my-assessments/'
+    | '/_authenticated/pip/'
     | '/_authenticated/students/'
     | '/_authenticated/assessments/$id/edit'
     | '/_authenticated/assessments/$id/results'
@@ -500,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyPayrollRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-pip': {
+      id: '/_authenticated/my-pip'
+      path: '/my-pip'
+      fullPath: '/my-pip'
+      preLoaderRoute: typeof AuthenticatedMyPipRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-qr': {
       id: '/_authenticated/my-qr'
       path: '/my-qr'
@@ -547,6 +590,20 @@ declare module '@tanstack/react-router' {
       path: '/my-assessments'
       fullPath: '/my-assessments/'
       preLoaderRoute: typeof AuthenticatedMyAssessmentsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pip/': {
+      id: '/_authenticated/pip/'
+      path: '/pip'
+      fullPath: '/pip/'
+      preLoaderRoute: typeof AuthenticatedPipIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pip/$id': {
+      id: '/_authenticated/pip/$id'
+      path: '/pip/$id'
+      fullPath: '/pip/$id'
+      preLoaderRoute: typeof AuthenticatedPipIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/students/': {
@@ -625,16 +682,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMyAttendanceRoute: typeof AuthenticatedMyAttendanceRoute
   AuthenticatedMyLeavesRoute: typeof AuthenticatedMyLeavesRoute
   AuthenticatedMyPayrollRoute: typeof AuthenticatedMyPayrollRoute
+  AuthenticatedMyPipRoute: typeof AuthenticatedMyPipRoute
   AuthenticatedMyQrRoute: typeof AuthenticatedMyQrRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedScannerRoute: typeof AuthenticatedScannerRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedPipIdRoute: typeof AuthenticatedPipIdRoute
   AuthenticatedStudentsIdRoute: typeof AuthenticatedStudentsIdRoute
   AuthenticatedStudentsBulkQrRoute: typeof AuthenticatedStudentsBulkQrRoute
   AuthenticatedAssessmentsIndexRoute: typeof AuthenticatedAssessmentsIndexRoute
   AuthenticatedMyAssessmentsIndexRoute: typeof AuthenticatedMyAssessmentsIndexRoute
+  AuthenticatedPipIndexRoute: typeof AuthenticatedPipIndexRoute
   AuthenticatedStudentsIndexRoute: typeof AuthenticatedStudentsIndexRoute
   AuthenticatedAssessmentsIdEditRoute: typeof AuthenticatedAssessmentsIdEditRoute
   AuthenticatedAssessmentsIdResultsRoute: typeof AuthenticatedAssessmentsIdResultsRoute
@@ -653,16 +713,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMyAttendanceRoute: AuthenticatedMyAttendanceRoute,
   AuthenticatedMyLeavesRoute: AuthenticatedMyLeavesRoute,
   AuthenticatedMyPayrollRoute: AuthenticatedMyPayrollRoute,
+  AuthenticatedMyPipRoute: AuthenticatedMyPipRoute,
   AuthenticatedMyQrRoute: AuthenticatedMyQrRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedScannerRoute: AuthenticatedScannerRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedPipIdRoute: AuthenticatedPipIdRoute,
   AuthenticatedStudentsIdRoute: AuthenticatedStudentsIdRoute,
   AuthenticatedStudentsBulkQrRoute: AuthenticatedStudentsBulkQrRoute,
   AuthenticatedAssessmentsIndexRoute: AuthenticatedAssessmentsIndexRoute,
   AuthenticatedMyAssessmentsIndexRoute: AuthenticatedMyAssessmentsIndexRoute,
+  AuthenticatedPipIndexRoute: AuthenticatedPipIndexRoute,
   AuthenticatedStudentsIndexRoute: AuthenticatedStudentsIndexRoute,
   AuthenticatedAssessmentsIdEditRoute: AuthenticatedAssessmentsIdEditRoute,
   AuthenticatedAssessmentsIdResultsRoute:

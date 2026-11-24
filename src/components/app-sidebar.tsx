@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, ClipboardCheck, ScanLine, FileBarChart2,
-  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode, IndianRupee, GraduationCap,
+  LogOut, ShieldCheck, User as UserIcon, CalendarClock, CalendarDays, Clock, PartyPopper, Shield, Wallet, QrCode, IndianRupee, GraduationCap, Target,
 } from "lucide-react";
 const mysocLogo = { url: "/favicon.ico" };
 import {
@@ -27,6 +27,8 @@ const items: NavItem[] = [
   { title: "Attendance", url: "/attendance", icon: ClipboardCheck, roles: ["super_admin", "hr_admin"] },
   { title: "QR Scanner", url: "/scanner", icon: ScanLine, roles: ["super_admin", "hr_admin", "founder"] },
   { title: "Reports", url: "/reports", icon: FileBarChart2, roles: ["super_admin", "hr_admin"] },
+  { title: "PIP", url: "/pip", icon: Target, roles: ["super_admin", "hr_admin"] },
+  { title: "My PIP", url: "/my-pip", icon: Target, roles: ["employee"] },
   { title: "Leave Management", url: "/leaves", icon: CalendarDays, roles: ["super_admin", "hr_admin"] },
   { title: "Holidays", url: "/holidays", icon: PartyPopper, roles: ["super_admin", "hr_admin"] },
   { title: "Shifts", url: "/shifts", icon: Clock, roles: ["super_admin", "hr_admin"] },
