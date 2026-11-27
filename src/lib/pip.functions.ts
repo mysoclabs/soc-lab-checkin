@@ -50,6 +50,8 @@ const updatePipSchema = z.object({
   reviewFrequencyDays: z.number().int().min(1).max(365),
   focusAreas: focusSchema,
   performanceConcerns: z.string().trim().min(1).max(5000),
+  supportProvided: z.string().trim().max(5000).nullable().optional(),
+  consequences: z.string().trim().max(5000).nullable().optional(),
 });
 
 const goalMutationSchema = goalSchema.extend({
@@ -203,6 +205,8 @@ export const updatePip = createServerFn({ method: "POST" })
       review_frequency_days: data.reviewFrequencyDays,
       focus_areas: data.focusAreas,
       performance_concerns: data.performanceConcerns,
+      support_provided: data.supportProvided || null,
+      consequences: data.consequences || null,
     }).eq("id", data.pipId);
     if (error) throw new Error(error.message);
     await writePipAudit(supabaseAdmin, context, "pip_updated", data.pipId, { status: pip.status });

@@ -27,6 +27,17 @@ export function PipStatusBadge({ status }: { status: PipStatus }) {
   return <Badge variant="secondary" className={colorClass}>{statusLabels[status]}</Badge>;
 }
 
+const goalStatuses: Record<string, { label: string; className: string }> = {
+  complete: { label: "Met", className: "bg-success/15 text-success" },
+  in_progress: { label: "In progress", className: "bg-warning/15 text-warning" },
+  not_started: { label: "Not started", className: "bg-muted text-muted-foreground" },
+};
+
+export function GoalStatusBadge({ status }: { status: string }) {
+  const { label, className } = goalStatuses[status] ?? goalStatuses.not_started;
+  return <Badge variant="secondary" className={className}>{label}</Badge>;
+}
+
 export function PipMetric({
   label,
   value,

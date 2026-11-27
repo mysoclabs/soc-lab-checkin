@@ -5,8 +5,7 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CheckCircle2, ClipboardList, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
-import { PipProgress, PipStatusBadge, formatPipDate, formatPipStatus } from "@/components/pip/pip-ui";
-import { Badge } from "@/components/ui/badge";
+import { GoalStatusBadge, PipProgress, PipStatusBadge, formatPipDate, formatPipStatus } from "@/components/pip/pip-ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,12 +25,6 @@ export const Route = createFileRoute("/_authenticated/my-pip")({
   }),
   component: () => <RoleGuard allow={["employee"]}><MyPip /></RoleGuard>,
 });
-
-const goalStatus: Record<string, { label: string; className: string }> = {
-  complete: { label: "Met", className: "bg-success/15 text-success" },
-  in_progress: { label: "In progress", className: "bg-warning/15 text-warning" },
-  not_started: { label: "Not started", className: "bg-muted text-muted-foreground" },
-};
 
 function MyPip() {
   const plansQuery = useQuery({
@@ -123,10 +116,9 @@ function CurrentPlan({ pip }: { pip: { id: string; start_date: string; end_date:
         {goalsQuery.isLoading ? <p className="py-6 text-sm text-muted-foreground">Loading goals…</p>
           : goals.length === 0 ? <p className="py-6 text-sm text-muted-foreground">No goals have been added yet.</p>
           : <div className="divide-y divide-border">{goals.map((goal) => {
-            const status = goalStatus[goal.status] ?? goalStatus.not_started;
             return <div key={goal.id} className="grid gap-2 py-3 sm:grid-cols-[1fr_auto_auto_8rem] sm:items-center sm:gap-4">
               <div className="min-w-0"><p className="text-sm font-medium">{goal.title}</p><p className="text-xs text-muted-foreground">{goal.kpi} · Target {goal.target}</p></div>
-              <Badge variant="secondary" className={status.className}>{status.label}</Badge>
+              <GoalStatusBadge status={goal.status} />
               <span className="text-xs text-muted-foreground">Rating {goal.rating ?? "–"}/5</span>
               <PipProgress value={goal.progress_percent} compact />
             </div>;
