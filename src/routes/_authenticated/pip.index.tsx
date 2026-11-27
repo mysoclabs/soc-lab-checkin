@@ -16,8 +16,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUser } from "@/hooks/use-role";
 import { supabase } from "@/integrations/supabase/client";
-import { createPip } from "@/lib/pip.functions";
-import { PIP_STATUSES, type PipStatus } from "@/lib/pip-permissions";
+import { createPip, publishPip } from "@/lib/pip.functions";
+import { goalWeightsAddUp, PIP_STATUSES, type PipStatus } from "@/lib/pip-permissions";
 
 export const Route = createFileRoute("/_authenticated/pip/")({
   head: () => ({
@@ -50,10 +50,13 @@ function PipDashboard() {
   const [reviewFrequencyDays, setReviewFrequencyDays] = useState(14);
   const [focusText, setFocusText] = useState("");
   const [concerns, setConcerns] = useState("");
+  const [supportProvided, setSupportProvided] = useState("");
+  const [consequences, setConsequences] = useState("");
   const [goals, setGoals] = useState<GoalDraft[]>([blankGoal()]);
   const { email } = useCurrentUser();
   const navigate = useNavigate();
   const createFn = useServerFn(createPip);
+  const publishFn = useServerFn(publishPip);
 
   const plansQuery = useQuery({
     queryKey: ["pip-records"],
@@ -127,10 +130,20 @@ function PipDashboard() {
   }, [plans, search, statusFilter, focusFilter, ownerFilter]);
 
   const createMutation = useMutation({
-    mutationFn: (input: Parameters<typeof createFn>[0]["data"]) => createFn({ data: input }),
-    onSuccess: async ({ id }) => {
+    mutationFn: async ({ publish, ...input }: Parameters<typeof createFn>[0]["data"] & { publish: boolean }) => {
+      const { id } = await createFn({ data: input });
+      if (!publish) return { id, published: false };
+      try {
+        await publishFn({ data: { pipId: id } });
+        return { id, published: true };
+      } catch (error) {
+        toast.error(`Saved as draft, but not published: ${error instanceof Error ? error.message : "unknown error"}`);
+        return { id, published: false };
+      }
+    },
+    onSuccess: async ({ id, published }) => {
       await queryClient.invalidateQueries({ queryKey: ["pip-records"] });
-      toast.success("PIP draft created");
+      toast.success(published ? "PIP published" : "PIP draft created");
       setCreateOpen(false);
       resetForm();
       navigate({ to: "/pip/$id", params: { id } });
@@ -145,12 +158,15 @@ function PipDashboard() {
     setReviewFrequencyDays(14);
     setFocusText("");
     setConcerns("");
+    setSupportProvided("");
+    setConsequences("");
     setGoals([blankGoal()]);
   }
 
-  function submitCreate() {
+  function submitCreate(publish: boolean) {
     const endDate = calculateEndDate(startDate, durationDays);
     createMutation.mutate({
+      publish,
       employeeId,
       startDate,
       durationDays,
@@ -158,7 +174,9 @@ function PipDashboard() {
       reviewFrequencyDays,
       focusAreas: focusText.split(/[\n,]+/).map((value) => value.trim()).filter(Boolean),
       performanceConcerns: concerns,
-      goals: goals.filter((goal) => goal.title.trim()).map((goal) => ({
+      supportProvided: supportProvided || null,
+      consequences: consequences || null,
+      goals: filledGoals.map((goal) => ({
         title: goal.title,
         description: goal.description || null,
         kpi: goal.kpi,
@@ -195,6 +213,9 @@ function PipDashboard() {
     URL.revokeObjectURL(url);
   }
 
+  const filledGoals = goals.filter((goal) => goal.title.trim());
+  const weightTotal = filledGoals.reduce((sum, goal) => sum + goal.weight, 0);
+  const weightsOk = goalWeightsAddUp(filledGoals.map((goal) => goal.weight));
   const activeCount = plans.filter((pip) => pip.status === "active" || pip.status === "extended").length;
   const completedCount = plans.filter((pip) => pip.status === "completed").length;
 
@@ -251,18 +272,19 @@ function PipDashboard() {
               <Table>
                 <TableHeader><TableRow>
                   <TableHead>Employee</TableHead><TableHead>Focus areas</TableHead><TableHead>HR owner</TableHead>
-                  <TableHead>Start / end</TableHead><TableHead>Progress</TableHead><TableHead>Status</TableHead><TableHead>Next review</TableHead>
+                  <TableHead>Start</TableHead><TableHead>End</TableHead><TableHead>Progress</TableHead><TableHead>Status</TableHead><TableHead>Next review</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {plansQuery.isLoading ? <TableRow><TableCell colSpan={7} className="h-28 text-center text-muted-foreground">Loading PIP records…</TableCell></TableRow>
-                    : plansQuery.error ? <TableRow><TableCell colSpan={7} className="h-28 text-center text-destructive">{plansQuery.error instanceof Error ? plansQuery.error.message : "Unable to load PIP records"}</TableCell></TableRow>
-                    : filtered.length === 0 ? <TableRow><TableCell colSpan={7} className="h-36 text-center"><ClipboardList className="mx-auto mb-2 h-6 w-6 text-muted-foreground" /><p className="font-medium">No PIP records found</p><p className="mt-1 text-sm text-muted-foreground">Create a plan or adjust your filters.</p></TableCell></TableRow>
+                  {plansQuery.isLoading ? <TableRow><TableCell colSpan={8} className="h-28 text-center text-muted-foreground">Loading PIP records…</TableCell></TableRow>
+                    : plansQuery.error ? <TableRow><TableCell colSpan={8} className="h-28 text-center text-destructive">{plansQuery.error instanceof Error ? plansQuery.error.message : "Unable to load PIP records"}</TableCell></TableRow>
+                    : filtered.length === 0 ? <TableRow><TableCell colSpan={8} className="h-36 text-center"><ClipboardList className="mx-auto mb-2 h-6 w-6 text-muted-foreground" /><p className="font-medium">No PIP records found</p><p className="mt-1 text-sm text-muted-foreground">Create a plan or adjust your filters.</p></TableCell></TableRow>
                     : filtered.map((pip) => (
                       <TableRow key={pip.id} tabIndex={0} className="cursor-pointer" onClick={() => navigate({ to: "/pip/$id", params: { id: pip.id } })} onKeyDown={(event) => { if (event.key === "Enter") navigate({ to: "/pip/$id", params: { id: pip.id } }); }}>
                         <TableCell><Link className="font-medium hover:text-primary" to="/pip/$id" params={{ id: pip.id }} onClick={(event) => event.stopPropagation()}>{pip.employee_name}</Link><p className="text-xs text-muted-foreground">{pip.department ?? pip.employee_email}</p></TableCell>
                         <TableCell><div className="flex max-w-48 flex-wrap gap-1">{pip.focus_areas.length ? pip.focus_areas.slice(0, 2).map((focus) => <span key={focus} className="rounded-sm bg-muted px-2 py-1 text-xs">{focus}</span>) : <span className="text-xs text-muted-foreground">Not set</span>}{pip.focus_areas.length > 2 && <span className="text-xs text-muted-foreground">+{pip.focus_areas.length - 2}</span>}</div></TableCell>
                         <TableCell className="max-w-40 truncate">{pip.hr_owner_email}</TableCell>
-                        <TableCell className="whitespace-nowrap text-xs">{formatPipDate(pip.start_date)}<span className="px-1 text-muted-foreground">→</span>{formatPipDate(pip.end_date)}</TableCell>
+                        <TableCell className="whitespace-nowrap text-xs">{formatPipDate(pip.start_date)}</TableCell>
+                        <TableCell className="whitespace-nowrap text-xs">{formatPipDate(pip.end_date)}</TableCell>
                         <TableCell><PipProgress value={pip.progress_percent} compact /></TableCell>
                         <TableCell><PipStatusBadge status={formatPipStatus(pip.status)} /></TableCell>
                         <TableCell className="whitespace-nowrap text-sm">{formatPipDate(nextReviewByPip.get(pip.id))}</TableCell>
@@ -291,7 +313,7 @@ function PipDashboard() {
                 </div>
                 <div className="grid gap-2"><Label>HR owner</Label><Input value={email ?? "Signed-in HR Admin"} readOnly /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-start">Start date</Label><Input id="pip-start" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></div>
-                <div className="grid gap-2"><Label htmlFor="pip-duration">Duration (days)</Label><Input id="pip-duration" type="number" min={1} max={365} value={durationDays} onChange={(event) => setDurationDays(Number(event.target.value))} /></div>
+                <div className="grid gap-2"><Label htmlFor="pip-duration">Duration (days)</Label><div className="flex gap-2"><Input id="pip-duration" type="number" min={1} max={365} value={durationDays} onChange={(event) => setDurationDays(Number(event.target.value))} />{[30, 60, 90].map((days) => <Button key={days} type="button" size="sm" variant={durationDays === days ? "default" : "outline"} onClick={() => setDurationDays(days)}>{days}</Button>)}</div></div>
                 <div className="grid gap-2"><Label htmlFor="pip-end">End date</Label><Input id="pip-end" type="date" value={calculateEndDate(startDate, durationDays)} readOnly /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-frequency">Review frequency (days)</Label><Input id="pip-frequency" type="number" min={1} max={365} value={reviewFrequencyDays} onChange={(event) => setReviewFrequencyDays(Number(event.target.value))} /></div>
               </div>
@@ -300,7 +322,9 @@ function PipDashboard() {
               <h3 className="text-sm font-semibold">Focus and concerns</h3>
               <div className="grid gap-4">
                 <div className="grid gap-2"><Label htmlFor="pip-focus">Focus areas</Label><Input id="pip-focus" placeholder="Communication, documentation, delivery" value={focusText} onChange={(event) => setFocusText(event.target.value)} /></div>
-                <div className="grid gap-2"><Label htmlFor="pip-concerns">Performance concerns</Label><Textarea id="pip-concerns" rows={4} value={concerns} onChange={(event) => setConcerns(event.target.value)} placeholder="Describe the performance areas to improve." /></div>
+                <div className="grid gap-2"><Label htmlFor="pip-concerns">Reason</Label><Textarea id="pip-concerns" rows={3} value={concerns} onChange={(event) => setConcerns(event.target.value)} placeholder="Describe the performance areas to improve." /></div>
+                <div className="grid gap-2"><Label htmlFor="pip-support">Support provided</Label><Textarea id="pip-support" rows={2} value={supportProvided} onChange={(event) => setSupportProvided(event.target.value)} placeholder="Weekly 1:1 with manager, review checklist training…" /></div>
+                <div className="grid gap-2"><Label htmlFor="pip-consequences">If goals are not met</Label><Textarea id="pip-consequences" rows={2} value={consequences} onChange={(event) => setConsequences(event.target.value)} placeholder="Review for further action as per company policy." /></div>
               </div>
             </section>
             <section className="space-y-3">
@@ -317,9 +341,13 @@ function PipDashboard() {
               </div>)}
             </section>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button onClick={submitCreate} disabled={createMutation.isPending || !employeeId || !concerns.trim()}>{createMutation.isPending ? "Saving…" : "Save draft"}</Button>
+          <DialogFooter className="items-center gap-2 sm:justify-between">
+            <p className={`text-xs ${weightsOk ? "text-success" : "text-destructive"}`}>{filledGoals.length ? `Weights total ${weightTotal}%${weightsOk ? "" : " (must be 100%)"}` : "Add a goal to publish"}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => submitCreate(false)} disabled={createMutation.isPending || !employeeId || !concerns.trim() || !weightsOk}>{createMutation.isPending ? "Saving…" : "Save as draft"}</Button>
+              <Button onClick={() => submitCreate(true)} disabled={createMutation.isPending || !employeeId || !concerns.trim() || !weightsOk || filledGoals.length === 0}>Publish PIP</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
