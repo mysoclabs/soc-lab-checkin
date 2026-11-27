@@ -9,6 +9,7 @@ import {
   canChangePipStatus,
   canManagePipGoals,
   canPublishPip,
+  goalWeightsAddUp,
   PIP_STATUSES,
   type PipAccessRecord,
   type PipRole,
@@ -39,8 +40,10 @@ const createPipSchema = z.object({
   reviewFrequencyDays: z.number().int().min(1).max(365),
   focusAreas: focusSchema,
   performanceConcerns: z.string().trim().min(1).max(5000),
+  supportProvided: z.string().trim().max(5000).nullable().optional(),
+  consequences: z.string().trim().max(5000).nullable().optional(),
   goals: z.array(goalSchema).max(30),
-});
+}).refine((data) => goalWeightsAddUp(data.goals.map((goal) => goal.weight)), { message: "Goal weights must total 100%", path: ["goals"] });
 
 const updatePipSchema = z.object({
   pipId: idSchema,
@@ -163,6 +166,8 @@ export const createPip = createServerFn({ method: "POST" })
       review_frequency_days: data.reviewFrequencyDays,
       focus_areas: data.focusAreas,
       performance_concerns: data.performanceConcerns,
+      support_provided: data.supportProvided || null,
+      consequences: data.consequences || null,
       status: "draft",
     }).select("id").single();
     if (error || !pip) throw new Error(error?.message ?? "Unable to create PIP");

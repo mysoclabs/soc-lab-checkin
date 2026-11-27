@@ -51,3 +51,7 @@ export function canChangePipStatus(role: PipRole, userId: string, pip: PipAccess
 export function canDeletePip(role: PipRole) {
   return role === "super_admin";
 }
+// Plans without goals are allowed as drafts; once goals exist their weights must total 100%.
+export function goalWeightsAddUp(weights: number[]) {
+  return weights.length === 0 || Math.abs(weights.reduce((sum, weight) => sum + weight, 0) - 100) < 0.01;
+}

@@ -6,6 +6,7 @@ import {
   canManagePipGoals,
   canPublishPip,
   canViewPip,
+  goalWeightsAddUp,
   type PipAccessRecord,
 } from "./pip-permissions";
 
@@ -59,5 +60,13 @@ describe("PIP access rules", () => {
     const completed: PipAccessRecord = { ...ownedDraft, status: "completed" };
     expect(canManagePipGoals("hr_admin", "hr-1", active)).toBe(true);
     expect(canManagePipGoals("hr_admin", "hr-1", completed)).toBe(false);
+  });
+
+  it("requires goal weights to total 100% once goals exist", () => {
+    expect(goalWeightsAddUp([])).toBe(true);
+    expect(goalWeightsAddUp([30, 30, 20, 20])).toBe(true);
+    expect(goalWeightsAddUp([33.33, 33.33, 33.34])).toBe(true);
+    expect(goalWeightsAddUp([25])).toBe(false);
+    expect(goalWeightsAddUp([60, 60])).toBe(false);
   });
 });
