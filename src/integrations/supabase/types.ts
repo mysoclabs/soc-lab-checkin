@@ -949,6 +949,7 @@ export type Database = {
         Row: {
           close_reason: string | null
           closed_at: string | null
+          consequences: string | null
           created_at: string
           created_by: string
           department: string | null
@@ -958,6 +959,7 @@ export type Database = {
           employee_id: string | null
           employee_name: string
           end_date: string
+          extension_reason: string | null
           focus_areas: string[]
           hr_owner_email: string
           hr_owner_user_id: string
@@ -968,11 +970,13 @@ export type Database = {
           review_frequency_days: number
           start_date: string
           status: string
+          support_provided: string | null
           updated_at: string
         }
         Insert: {
           close_reason?: string | null
           closed_at?: string | null
+          consequences?: string | null
           created_at?: string
           created_by: string
           department?: string | null
@@ -982,6 +986,7 @@ export type Database = {
           employee_id?: string | null
           employee_name: string
           end_date: string
+          extension_reason?: string | null
           focus_areas?: string[]
           hr_owner_email: string
           hr_owner_user_id: string
@@ -992,11 +997,13 @@ export type Database = {
           review_frequency_days?: number
           start_date: string
           status?: string
+          support_provided?: string | null
           updated_at?: string
         }
         Update: {
           close_reason?: string | null
           closed_at?: string | null
+          consequences?: string | null
           created_at?: string
           created_by?: string
           department?: string | null
@@ -1006,6 +1013,7 @@ export type Database = {
           employee_id?: string | null
           employee_name?: string
           end_date?: string
+          extension_reason?: string | null
           focus_areas?: string[]
           hr_owner_email?: string
           hr_owner_user_id?: string
@@ -1016,6 +1024,7 @@ export type Database = {
           review_frequency_days?: number
           start_date?: string
           status?: string
+          support_provided?: string | null
           updated_at?: string
         }
         Relationships: [

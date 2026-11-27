@@ -18,7 +18,7 @@ const ownedDraft: PipAccessRecord = {
 describe("PIP access rules", () => {
   it("allows Super Admin to edit plans, change outcomes, and delete records", () => {
     expect(canEditPipBasics("super_admin", "admin-1", ownedDraft)).toBe(true);
-    expect(canChangePipStatus("super_admin")).toBe(true);
+    expect(canChangePipStatus("super_admin", "admin-1", ownedDraft, "cancelled")).toBe(true);
     expect(canDeletePip("super_admin")).toBe(true);
   });
 
@@ -29,9 +29,22 @@ describe("PIP access rules", () => {
     expect(canPublishPip("hr_admin", "hr-2", ownedDraft)).toBe(false);
   });
 
-  it("prevents HR Admin from deleting or changing high-privilege outcomes", () => {
+  it("lets the owning HR Admin extend or close a running plan", () => {
+    const active: PipAccessRecord = { ...ownedDraft, status: "active" };
+    const extended: PipAccessRecord = { ...ownedDraft, status: "extended" };
+    expect(canChangePipStatus("hr_admin", "hr-1", active, "extended")).toBe(true);
+    expect(canChangePipStatus("hr_admin", "hr-1", active, "completed")).toBe(true);
+    expect(canChangePipStatus("hr_admin", "hr-1", extended, "unsuccessful")).toBe(true);
+  });
+
+  it("prevents HR Admin from deleting, cancelling, reopening, or touching other owners' plans", () => {
+    const active: PipAccessRecord = { ...ownedDraft, status: "active" };
+    const completed: PipAccessRecord = { ...ownedDraft, status: "completed" };
     expect(canDeletePip("hr_admin")).toBe(false);
-    expect(canChangePipStatus("hr_admin")).toBe(false);
+    expect(canChangePipStatus("hr_admin", "hr-1", active, "cancelled")).toBe(false);
+    expect(canChangePipStatus("hr_admin", "hr-1", completed, "active")).toBe(false);
+    expect(canChangePipStatus("hr_admin", "hr-1", ownedDraft, "completed")).toBe(false);
+    expect(canChangePipStatus("hr_admin", "hr-2", active, "extended")).toBe(false);
   });
 
   it("shows employees only their own non-draft PIPs", () => {

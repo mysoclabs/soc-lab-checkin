@@ -39,8 +39,13 @@ export function canManagePipGoals(role: PipRole, userId: string, pip: PipAccessR
     && ["draft", "active", "extended"].includes(pip.status);
 }
 
-export function canChangePipStatus(role: PipRole) {
-  return role === "super_admin";
+// HR owners may extend or close a running plan; cancel and reopen stay Super Admin only.
+export function canChangePipStatus(role: PipRole, userId: string, pip: PipAccessRecord, next: PipStatus) {
+  if (role === "super_admin") return true;
+  return role === "hr_admin"
+    && pip.hr_owner_user_id === userId
+    && ["active", "extended"].includes(pip.status)
+    && ["extended", "completed", "unsuccessful"].includes(next);
 }
 
 export function canDeletePip(role: PipRole) {

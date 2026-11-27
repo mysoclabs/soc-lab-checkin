@@ -366,20 +366,26 @@ export const setPipStatus = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => statusSchema.parse(data))
   .handler(async ({ data, context }) => {
     const role = await requirePipAdmin(context);
-    if (!canChangePipStatus(role)) throw new Error("Only Super Admin can change PIP outcomes or duration");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await loadManageablePip(supabaseAdmin, role, context.userId, data.pipId);
+    const pip = await loadManageablePip(supabaseAdmin, role, context.userId, data.pipId);
+    if (!canChangePipStatus(role, context.userId, pip, data.status)) {
+      throw new Error("Only Super Admin can cancel or reopen a PIP");
+    }
     if (["completed", "unsuccessful", "cancelled"].includes(data.status) && !data.reason?.trim()) {
       throw new Error("Add a reason for closing or cancelling this PIP");
     }
     if (data.status === "extended" && !data.endDate) throw new Error("Choose the revised end date");
+    if (data.status === "extended" && !data.reason?.trim()) throw new Error("Add a reason for extending this PIP");
     const isClosed = ["completed", "unsuccessful", "cancelled"].includes(data.status);
     const update: Database["public"]["Tables"]["pip_records"]["Update"] = {
       status: data.status,
       close_reason: isClosed ? data.reason ?? null : null,
       closed_at: isClosed ? new Date().toISOString() : null,
     };
-    if (data.status === "extended" && data.endDate) update.end_date = data.endDate;
+    if (data.status === "extended" && data.endDate) {
+      update.end_date = data.endDate;
+      update.extension_reason = data.reason ?? null;
+    }
     if (data.status === "active") update.published_at = new Date().toISOString();
     const { error } = await supabaseAdmin.from("pip_records").update(update).eq("id", data.pipId);
     if (error) throw new Error(error.message);
