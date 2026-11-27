@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserRole, ROLE_LABELS, type AppRole } from "@/hooks/use-role";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type NavItem = {
   title: string;
@@ -66,7 +66,19 @@ export function AppSidebar() {
     navigate({ to: "/auth", replace: true });
   };
 
-  const visible = items.filter((i) => (role ? i.roles.includes(role) : false));
+  // Same query and key as the My PIP page, so the cache is shared. RLS returns only this employee's plans.
+  const { data: myPips } = useQuery({
+    queryKey: ["my-pip-records"],
+    enabled: role === "employee",
+    queryFn: async () => {
+      const { data, error } = await supabase.from("pip_records").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const hasPip = (myPips ?? []).some((pip) => pip.status !== "draft");
+
+  const visible = items.filter((i) => (role ? i.roles.includes(role) : false) && (i.url !== "/my-pip" || hasPip));
 
   return (
     <Sidebar collapsible="icon">
