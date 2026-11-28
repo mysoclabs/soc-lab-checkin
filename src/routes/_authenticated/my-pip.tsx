@@ -5,6 +5,8 @@ import { differenceInCalendarDays, parseISO } from "date-fns";
 import { CheckCircle2, ClipboardList, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "@/components/role-guard";
+import { PipComments } from "@/components/pip/pip-comments";
+import { PipDocuments } from "@/components/pip/pip-documents";
 import { GoalStatusBadge, PipProgress, PipStatusBadge, formatPipDate, formatPipStatus } from "@/components/pip/pip-ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/my-pip")({
 });
 
 function MyPip() {
+  const { userId } = useUserRole();
   const plansQuery = useQuery({
     queryKey: ["my-pip-records"],
     queryFn: async () => {
@@ -36,7 +39,8 @@ function MyPip() {
       return data ?? [];
     },
   });
-  const plans = (plansQuery.data ?? []).filter((pip) => pip.status !== "draft");
+  // RLS also returns plans this user manages for someone else; those belong on the PIP page, not here.
+  const plans = (plansQuery.data ?? []).filter((pip) => pip.status !== "draft" && pip.manager_user_id !== userId);
   const current = plans.find((pip) => pip.status === "active" || pip.status === "extended");
   const history = plans.filter((pip) => pip !== current);
 
@@ -129,6 +133,10 @@ function CurrentPlan({ pip }: { pip: { id: string; start_date: string; end_date:
         {feedback.length === 0 ? <p className="py-6 text-sm text-muted-foreground">Feedback from your reviews will appear here.</p>
           : <ul className="space-y-4">{feedback.map((review) => <li key={review.id} className="flex gap-3"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${review.completed_at ? "bg-success" : "bg-warning"}`} aria-hidden="true" /><div><p className="text-xs font-medium">{formatPipDate(review.scheduled_date)}</p><p className="whitespace-pre-wrap text-sm text-muted-foreground">{review.shared_summary}</p></div></li>)}</ul>}
       </CardContent></Card>
+    </div>
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card><CardContent className="space-y-3 p-4"><h2 className="text-sm font-semibold">Comments</h2><PipComments pipId={pip.id} /></CardContent></Card>
+      <Card><CardContent className="space-y-3 p-4"><h2 className="text-sm font-semibold">Documents</h2><PipDocuments pipId={pip.id} canManage={false} /></CardContent></Card>
     </div>
     <Card><CardContent className="space-y-3 p-4">
       <h2 className="text-sm font-semibold">My response</h2>

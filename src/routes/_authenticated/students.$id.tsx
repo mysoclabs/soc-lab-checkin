@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PipHistory } from "@/components/pip/pip-history";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer, RefreshCw, User } from "lucide-react";
 import { toast } from "sonner";
@@ -166,6 +167,7 @@ function EmployeeProfile() {
           </CardContent>
         </Card>
       </div>
+      <PipHistory employeeId={employee.id} />
     </div>
   );
 }

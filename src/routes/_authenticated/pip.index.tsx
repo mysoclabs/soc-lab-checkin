@@ -14,9 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { useCurrentUser } from "@/hooks/use-role";
+import { useUserRole } from "@/hooks/use-role";
 import { supabase } from "@/integrations/supabase/client";
-import { createPip, publishPip } from "@/lib/pip.functions";
+import { createPip, listPipManagerOptions, publishPip } from "@/lib/pip.functions";
 import { goalWeightsAddUp, PIP_STATUSES, type PipStatus } from "@/lib/pip-permissions";
 
 export const Route = createFileRoute("/_authenticated/pip/")({
@@ -30,12 +30,14 @@ export const Route = createFileRoute("/_authenticated/pip/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <RoleGuard allow={["super_admin", "hr_admin"]}><PipDashboard /></RoleGuard>,
+  // Reporting managers can hold any app role; non-admins only see the plans they manage.
+  component: () => <RoleGuard allow={["super_admin", "hr_admin", "employee", "founder", "finance"]}><PipDashboard /></RoleGuard>,
 });
 
 type GoalDraft = { title: string; description: string; kpi: string; target: string; weight: number; dueDate: string; evidence: string };
 type EmployeeOption = { id: string; name: string; email: string; department: string | null; designation: string | null };
-const blankGoal = (): GoalDraft => ({ title: "", description: "", kpi: "", target: "", weight: 25, dueDate: "", evidence: "" });
+const blankGoal = (weight = 100): GoalDraft => ({ title: "", description: "", kpi: "", target: "", weight, dueDate: "", evidence: "" });
+const STEPS = ["Employee and dates", "Reason and support", "Goals and review"] as const;
 
 function PipDashboard() {
   const queryClient = useQueryClient();
@@ -53,15 +55,23 @@ function PipDashboard() {
   const [supportProvided, setSupportProvided] = useState("");
   const [consequences, setConsequences] = useState("");
   const [goals, setGoals] = useState<GoalDraft[]>([blankGoal()]);
-  const { email } = useCurrentUser();
+  const [managerUserId, setManagerUserId] = useState("none");
+  const [step, setStep] = useState(0);
+  const { email, userId, role } = useUserRole();
+  const isAdmin = role === "super_admin" || role === "hr_admin";
   const navigate = useNavigate();
   const createFn = useServerFn(createPip);
   const publishFn = useServerFn(publishPip);
+  const managerOptionsFn = useServerFn(listPipManagerOptions);
 
   const plansQuery = useQuery({
-    queryKey: ["pip-records"],
+    queryKey: ["pip-records", isAdmin ? "all" : userId],
+    enabled: !!role,
     queryFn: async () => {
-      const { data, error } = await supabase.from("pip_records").select("*").order("created_at", { ascending: false });
+      let query = supabase.from("pip_records").select("*").order("created_at", { ascending: false });
+      // An employee who manages plans would otherwise also see their own PIP here.
+      if (!isAdmin) query = query.eq("manager_user_id", userId ?? "");
+      const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     },
@@ -92,10 +102,12 @@ function PipDashboard() {
       return (data ?? []) as EmployeeOption[];
     },
   });
+  const managerOptionsQuery = useQuery({ queryKey: ["pip-manager-options"], enabled: createOpen, queryFn: () => managerOptionsFn() });
 
   const plans = plansQuery.data ?? [];
-  const pipGoals = goalsQuery.data ?? [];
-  const checkins = checkinsQuery.data ?? [];
+  const planIds = new Set(plans.map((pip) => pip.id));
+  const pipGoals = (goalsQuery.data ?? []).filter((goal) => planIds.has(goal.pip_id));
+  const checkins = (checkinsQuery.data ?? []).filter((checkin) => planIds.has(checkin.pip_id));
   const today = new Date().toISOString().slice(0, 10);
   const weekEnd = new Date();
   weekEnd.setDate(weekEnd.getDate() + 7);
@@ -161,6 +173,8 @@ function PipDashboard() {
     setSupportProvided("");
     setConsequences("");
     setGoals([blankGoal()]);
+    setManagerUserId("none");
+    setStep(0);
   }
 
   function submitCreate(publish: boolean) {
@@ -176,6 +190,7 @@ function PipDashboard() {
       performanceConcerns: concerns,
       supportProvided: supportProvided || null,
       consequences: consequences || null,
+      managerUserId: managerUserId === "none" ? null : managerUserId,
       goals: filledGoals.map((goal) => ({
         title: goal.title,
         description: goal.description || null,
@@ -216,6 +231,8 @@ function PipDashboard() {
   const filledGoals = goals.filter((goal) => goal.title.trim());
   const weightTotal = filledGoals.reduce((sum, goal) => sum + goal.weight, 0);
   const weightsOk = goalWeightsAddUp(filledGoals.map((goal) => goal.weight));
+  const selectedEmployee = (employeesQuery.data ?? []).find((employee) => employee.id === employeeId);
+  const stepValid = [!!employeeId && !!calculateEndDate(startDate, durationDays) && reviewFrequencyDays >= 1, !!concerns.trim(), weightsOk];
   const activeCount = plans.filter((pip) => pip.status === "active" || pip.status === "extended").length;
   const completedCount = plans.filter((pip) => pip.status === "completed").length;
 
@@ -224,12 +241,12 @@ function PipDashboard() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-medium uppercase text-primary">People operations</p>
-          <h1 className="mt-1 text-2xl font-semibold">PIP Management</h1>
+          <h1 className="mt-1 text-2xl font-semibold">{isAdmin ? "PIP Management" : "PIPs I manage"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Performance plans, milestones, and review dates.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={exportCsv}><Download className="mr-2 h-4 w-4" />Export CSV</Button>
-          <Button onClick={() => setCreateOpen(true)}><Plus className="mr-2 h-4 w-4" />Create PIP</Button>
+          {isAdmin && <Button onClick={() => setCreateOpen(true)}><Plus className="mr-2 h-4 w-4" />Create PIP</Button>}
         </div>
       </div>
 
@@ -303,32 +320,32 @@ function PipDashboard() {
             <DialogTitle>Create a performance plan</DialogTitle>
             <DialogDescription>Save as a draft, add measurable goals, then publish when ready.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-6 py-2">
-            <section className="space-y-3">
-              <h3 className="text-sm font-semibold">Employee ownership</h3>
+          <ol className="flex flex-wrap gap-2 text-xs" aria-label="Steps">{STEPS.map((label, index) => <li key={label} className={`rounded-full border px-3 py-1 ${index === step ? "border-primary bg-primary/10 text-primary" : index < step ? "border-success/40 text-success" : "border-border text-muted-foreground"}`} aria-current={index === step ? "step" : undefined}>{index + 1}. {label}</li>)}</ol>
+          <div className="py-2">
+            {step === 0 && <section className="space-y-3">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2 sm:col-span-2"><Label>Employee</Label>
                   <Select value={employeeId} onValueChange={setEmployeeId}><SelectTrigger><SelectValue placeholder="Select an employee" /></SelectTrigger><SelectContent>{(employeesQuery.data ?? []).map((employee) => <SelectItem key={employee.id} value={employee.id}>{employee.name} · {employee.email}</SelectItem>)}</SelectContent></Select>
                   {employeesQuery.isError && <p className="text-xs text-destructive">Unable to load employees.</p>}
                 </div>
+                <div className="grid gap-2"><Label>Reporting manager</Label><Select value={managerUserId} onValueChange={setManagerUserId}><SelectTrigger aria-label="Reporting manager"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">No manager</SelectItem>{(managerOptionsQuery.data ?? []).filter((user) => user.email.toLowerCase() !== selectedEmployee?.email.toLowerCase()).map((user) => <SelectItem key={user.id} value={user.id}>{user.email}</SelectItem>)}</SelectContent></Select></div>
                 <div className="grid gap-2"><Label>HR owner</Label><Input value={email ?? "Signed-in HR Admin"} readOnly /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-start">Start date</Label><Input id="pip-start" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-duration">Duration (days)</Label><div className="flex gap-2"><Input id="pip-duration" type="number" min={1} max={365} value={durationDays} onChange={(event) => setDurationDays(Number(event.target.value))} />{[30, 60, 90].map((days) => <Button key={days} type="button" size="sm" variant={durationDays === days ? "default" : "outline"} onClick={() => setDurationDays(days)}>{days}</Button>)}</div></div>
                 <div className="grid gap-2"><Label htmlFor="pip-end">End date</Label><Input id="pip-end" type="date" value={calculateEndDate(startDate, durationDays)} readOnly /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-frequency">Review frequency (days)</Label><Input id="pip-frequency" type="number" min={1} max={365} value={reviewFrequencyDays} onChange={(event) => setReviewFrequencyDays(Number(event.target.value))} /></div>
               </div>
-            </section>
-            <section className="space-y-3">
-              <h3 className="text-sm font-semibold">Focus and concerns</h3>
+            </section>}
+            {step === 1 && <section className="space-y-3">
               <div className="grid gap-4">
                 <div className="grid gap-2"><Label htmlFor="pip-focus">Focus areas</Label><Input id="pip-focus" placeholder="Communication, documentation, delivery" value={focusText} onChange={(event) => setFocusText(event.target.value)} /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-concerns">Reason</Label><Textarea id="pip-concerns" rows={3} value={concerns} onChange={(event) => setConcerns(event.target.value)} placeholder="Describe the performance areas to improve." /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-support">Support provided</Label><Textarea id="pip-support" rows={2} value={supportProvided} onChange={(event) => setSupportProvided(event.target.value)} placeholder="Weekly 1:1 with manager, review checklist training…" /></div>
                 <div className="grid gap-2"><Label htmlFor="pip-consequences">If goals are not met</Label><Textarea id="pip-consequences" rows={2} value={consequences} onChange={(event) => setConsequences(event.target.value)} placeholder="Review for further action as per company policy." /></div>
               </div>
-            </section>
-            <section className="space-y-3">
-              <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-semibold">Goals and success measures</h3><p className="text-xs text-muted-foreground">At least one complete goal is required before publishing.</p></div><Button type="button" size="sm" variant="outline" onClick={() => setGoals((current) => [...current, blankGoal()])}><Plus className="mr-1 h-4 w-4" />Add goal</Button></div>
+            </section>}
+            {step === 2 && <section className="space-y-3">
+              <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-semibold">Goals and success measures</h3><p className="text-xs text-muted-foreground">At least one complete goal is required before publishing.</p></div><Button type="button" size="sm" variant="outline" onClick={() => setGoals((current) => [...current, blankGoal(Math.max(0, 100 - current.reduce((sum, goal) => sum + goal.weight, 0)))])}><Plus className="mr-1 h-4 w-4" />Add goal</Button></div>
               {goals.map((goal, index) => <div key={index} className="grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2">
                 <div className="grid gap-2"><Label>Goal {index + 1}</Label><Input aria-label={`Goal ${index + 1} title`} value={goal.title} onChange={(event) => patchGoal(setGoals, index, "title", event.target.value)} placeholder="Improve report quality" /></div>
                 <div className="grid gap-2"><Label>KPI</Label><Input value={goal.kpi} onChange={(event) => patchGoal(setGoals, index, "kpi", event.target.value)} placeholder="Weekly reviews completed" /></div>
@@ -339,14 +356,16 @@ function PipDashboard() {
                 <div className="grid gap-2 sm:col-span-2"><Label>Description</Label><Textarea rows={2} value={goal.description} onChange={(event) => patchGoal(setGoals, index, "description", event.target.value)} /></div>
                 {goals.length > 1 && <div className="sm:col-span-2"><Button type="button" variant="ghost" size="sm" onClick={() => setGoals((current) => current.filter((_, goalIndex) => goalIndex !== index))}>Remove goal</Button></div>}
               </div>)}
-            </section>
+            </section>}
           </div>
           <DialogFooter className="items-center gap-2 sm:justify-between">
-            <p className={`text-xs ${weightsOk ? "text-success" : "text-destructive"}`}>{filledGoals.length ? `Weights total ${weightTotal}%${weightsOk ? "" : " (must be 100%)"}` : "Add a goal to publish"}</p>
+            <p className={`text-xs ${step < 2 ? "text-muted-foreground" : weightsOk ? "text-success" : "text-destructive"}`}>{step < 2 ? `Step ${step + 1} of ${STEPS.length}` : filledGoals.length ? `Weights total ${weightTotal}%${weightsOk ? "" : " (must be 100%)"}` : "Add a goal to publish"}</p>
             <div className="flex flex-wrap gap-2">
-              <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button>
-              <Button variant="outline" onClick={() => submitCreate(false)} disabled={createMutation.isPending || !employeeId || !concerns.trim() || !weightsOk}>{createMutation.isPending ? "Saving…" : "Save as draft"}</Button>
-              <Button onClick={() => submitCreate(true)} disabled={createMutation.isPending || !employeeId || !concerns.trim() || !weightsOk || filledGoals.length === 0}>Publish PIP</Button>
+              {step === 0 ? <Button variant="ghost" onClick={() => setCreateOpen(false)}>Cancel</Button> : <Button variant="ghost" onClick={() => setStep(step - 1)}>Back</Button>}
+              {step < 2 ? <Button onClick={() => setStep(step + 1)} disabled={!stepValid[step]}>Next</Button> : <>
+                <Button variant="outline" onClick={() => submitCreate(false)} disabled={createMutation.isPending || !stepValid.every(Boolean)}>{createMutation.isPending ? "Saving…" : "Save as draft"}</Button>
+                <Button onClick={() => submitCreate(true)} disabled={createMutation.isPending || !stepValid.every(Boolean) || filledGoals.length === 0}>Publish PIP</Button>
+              </>}
             </div>
           </DialogFooter>
         </DialogContent>
