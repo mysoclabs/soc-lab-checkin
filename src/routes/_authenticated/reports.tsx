@@ -15,6 +15,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { RoleGuard } from "@/components/role-guard";
+import { PipReport } from "@/components/pip/pip-report";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports · MySocLabs" }] }),
@@ -74,6 +75,7 @@ function ReportsPage() {
           <TabsTrigger value="monthly">Monthly</TabsTrigger>
           <TabsTrigger value="range">Date Range</TabsTrigger>
           <TabsTrigger value="percentage">Statistics</TabsTrigger>
+          <TabsTrigger value="pip">PIP</TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily" className="pt-4 space-y-4">
@@ -89,6 +91,9 @@ function ReportsPage() {
         </TabsContent>
         <TabsContent value="monthly" className="pt-4">
           <MonthReport anchor={monthAnchor} setAnchor={setMonthAnchor} {...filters} />
+        </TabsContent>
+        <TabsContent value="pip" className="pt-4">
+          <PipReport />
         </TabsContent>
         <TabsContent value="range" className="pt-4">
           <RangeReport

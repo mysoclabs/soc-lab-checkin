@@ -54,7 +54,7 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { role, email } = useUserRole();
+  const { role, email, userId } = useUserRole();
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
@@ -76,9 +76,11 @@ export function AppSidebar() {
       return data ?? [];
     },
   });
-  const hasPip = (myPips ?? []).some((pip) => pip.status !== "draft");
+  const hasPip = (myPips ?? []).some((pip) => pip.status !== "draft" && pip.manager_user_id !== userId);
+  // Reporting managers are set per plan, so a regular employee can manage someone else's PIP.
+  const managesPip = (myPips ?? []).some((pip) => pip.manager_user_id === userId);
 
-  const visible = items.filter((i) => (role ? i.roles.includes(role) : false) && (i.url !== "/my-pip" || hasPip));
+  const visible = items.filter((i) => ((role ? i.roles.includes(role) : false) && (i.url !== "/my-pip" || hasPip)) || (i.url === "/pip" && managesPip));
 
   return (
     <Sidebar collapsible="icon">

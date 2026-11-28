@@ -14,10 +14,20 @@ export type PipAccessRecord = {
   status: PipStatus;
   hr_owner_user_id: string;
   employee_email: string;
+  manager_user_id?: string | null;
 };
 
+// The reporting manager is set per plan, so any signed-in user can be one, whatever their app role.
+export function isPipManager(userId: string, pip: PipAccessRecord) {
+  return !!userId && pip.manager_user_id === userId && pip.status !== "draft";
+}
+
+export function isPipOwner(role: PipRole, userId: string, pip: PipAccessRecord) {
+  return role === "super_admin" || (role === "hr_admin" && pip.hr_owner_user_id === userId);
+}
+
 export function canViewPip(role: PipRole, userId: string, email: string, pip: PipAccessRecord) {
-  if (role === "super_admin") return true;
+  if (role === "super_admin" || isPipManager(userId, pip)) return true;
   if (role === "hr_admin") return pip.hr_owner_user_id === userId;
   return pip.status !== "draft" && pip.employee_email.toLowerCase() === email.toLowerCase();
 }
@@ -37,6 +47,12 @@ export function canManagePipGoals(role: PipRole, userId: string, pip: PipAccessR
   return role === "hr_admin"
     && pip.hr_owner_user_id === userId
     && ["draft", "active", "extended"].includes(pip.status);
+}
+
+// Check-ins and goal progress: the HR owner, or the manager while the plan is running.
+export function canReviewPip(role: PipRole, userId: string, pip: PipAccessRecord) {
+  return canManagePipGoals(role, userId, pip)
+    || (isPipManager(userId, pip) && ["active", "extended"].includes(pip.status));
 }
 
 // HR owners may extend or close a running plan; cancel and reopen stay Super Admin only.

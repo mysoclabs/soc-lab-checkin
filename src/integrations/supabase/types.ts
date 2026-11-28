@@ -794,6 +794,91 @@ export type Database = {
           },
         ]
       }
+      pip_comments: {
+        Row: {
+          author_email: string
+          author_role: string
+          author_user_id: string
+          body: string
+          created_at: string
+          id: string
+          pip_id: string
+        }
+        Insert: {
+          author_email: string
+          author_role: string
+          author_user_id: string
+          body: string
+          created_at?: string
+          id?: string
+          pip_id: string
+        }
+        Update: {
+          author_email?: string
+          author_role?: string
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          pip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_comments_pip_id_fkey"
+            columns: ["pip_id"]
+            isOneToOne: false
+            referencedRelation: "pip_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pip_documents: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          file_name: string
+          id: string
+          pip_id: string
+          shared_with_employee: boolean
+          size_bytes: number
+          storage_path: string
+          uploaded_by: string
+          uploaded_by_email: string
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          file_name: string
+          id?: string
+          pip_id: string
+          shared_with_employee?: boolean
+          size_bytes?: number
+          storage_path: string
+          uploaded_by: string
+          uploaded_by_email: string
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          file_name?: string
+          id?: string
+          pip_id?: string
+          shared_with_employee?: boolean
+          size_bytes?: number
+          storage_path?: string
+          uploaded_by?: string
+          uploaded_by_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pip_documents_pip_id_fkey"
+            columns: ["pip_id"]
+            isOneToOne: false
+            referencedRelation: "pip_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pip_employee_responses: {
         Row: {
           acknowledged_at: string | null
@@ -960,6 +1045,8 @@ export type Database = {
           employee_name: string
           end_date: string
           extension_reason: string | null
+          manager_email: string | null
+          manager_user_id: string | null
           focus_areas: string[]
           hr_owner_email: string
           hr_owner_user_id: string
@@ -987,6 +1074,8 @@ export type Database = {
           employee_name: string
           end_date: string
           extension_reason?: string | null
+          manager_email?: string | null
+          manager_user_id?: string | null
           focus_areas?: string[]
           hr_owner_email: string
           hr_owner_user_id: string
@@ -1014,6 +1103,8 @@ export type Database = {
           employee_name?: string
           end_date?: string
           extension_reason?: string | null
+          manager_email?: string | null
+          manager_user_id?: string | null
           focus_areas?: string[]
           hr_owner_email?: string
           hr_owner_user_id?: string

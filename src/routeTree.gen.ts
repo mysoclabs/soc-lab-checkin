@@ -37,6 +37,7 @@ import { Route as AuthenticatedStudentsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedStudentsBulkQrRouteImport } from './routes/_authenticated/students.bulk-qr'
 import { Route as ApiCronAutoCheckoutRouteImport } from './routes/api/cron/auto-checkout'
+import { Route as ApiCronPipReviewsRouteImport } from './routes/api/cron/pip-reviews'
 import { Route as AuthenticatedAssessmentsIdEditRouteImport } from './routes/_authenticated/assessments.$id.edit'
 import { Route as AuthenticatedAssessmentsIdResultsRouteImport } from './routes/_authenticated/assessments.$id.results'
 import { Route as AuthenticatedMyAssessmentsIdTakeRouteImport } from './routes/_authenticated/my-assessments.$id.take'
@@ -187,6 +188,11 @@ const ApiCronAutoCheckoutRoute = ApiCronAutoCheckoutRouteImport.update({
   path: '/api/cron/auto-checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronPipReviewsRoute = ApiCronPipReviewsRouteImport.update({
+  id: '/api/cron/pip-reviews',
+  path: '/api/cron/pip-reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAssessmentsIdEditRoute =
   AuthenticatedAssessmentsIdEditRouteImport.update({
     id: '/assessments/$id/edit',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
+  '/api/cron/pip-reviews': typeof ApiCronPipReviewsRoute
   '/assessments/': typeof AuthenticatedAssessmentsIndexRoute
   '/my-assessments/': typeof AuthenticatedMyAssessmentsIndexRoute
   '/pip/': typeof AuthenticatedPipIndexRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
+  '/api/cron/pip-reviews': typeof ApiCronPipReviewsRoute
   '/assessments': typeof AuthenticatedAssessmentsIndexRoute
   '/my-assessments': typeof AuthenticatedMyAssessmentsIndexRoute
   '/pip': typeof AuthenticatedPipIndexRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
   '/_authenticated/students/bulk-qr': typeof AuthenticatedStudentsBulkQrRoute
   '/api/cron/auto-checkout': typeof ApiCronAutoCheckoutRoute
+  '/api/cron/pip-reviews': typeof ApiCronPipReviewsRoute
   '/_authenticated/assessments/': typeof AuthenticatedAssessmentsIndexRoute
   '/_authenticated/my-assessments/': typeof AuthenticatedMyAssessmentsIndexRoute
   '/_authenticated/pip/': typeof AuthenticatedPipIndexRoute
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
     | '/students/$id'
     | '/students/bulk-qr'
     | '/api/cron/auto-checkout'
+    | '/api/cron/pip-reviews'
     | '/assessments/'
     | '/my-assessments/'
     | '/pip/'
@@ -382,6 +392,7 @@ export interface FileRouteTypes {
     | '/students/$id'
     | '/students/bulk-qr'
     | '/api/cron/auto-checkout'
+    | '/api/cron/pip-reviews'
     | '/assessments'
     | '/my-assessments'
     | '/pip'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/_authenticated/students/$id'
     | '/_authenticated/students/bulk-qr'
     | '/api/cron/auto-checkout'
+    | '/api/cron/pip-reviews'
     | '/_authenticated/assessments/'
     | '/_authenticated/my-assessments/'
     | '/_authenticated/pip/'
@@ -434,6 +446,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiCronAutoCheckoutRoute: typeof ApiCronAutoCheckoutRoute
+  ApiCronPipReviewsRoute: typeof ApiCronPipReviewsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -634,6 +647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronAutoCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/pip-reviews': {
+      id: '/api/cron/pip-reviews'
+      path: '/api/cron/pip-reviews'
+      fullPath: '/api/cron/pip-reviews'
+      preLoaderRoute: typeof ApiCronPipReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/assessments/$id/edit': {
       id: '/_authenticated/assessments/$id/edit'
       path: '/assessments/$id/edit'
@@ -746,6 +766,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiCronAutoCheckoutRoute: ApiCronAutoCheckoutRoute,
+  ApiCronPipReviewsRoute: ApiCronPipReviewsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

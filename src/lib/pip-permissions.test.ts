@@ -5,8 +5,10 @@ import {
   canEditPipBasics,
   canManagePipGoals,
   canPublishPip,
+  canReviewPip,
   canViewPip,
   goalWeightsAddUp,
+  isPipOwner,
   type PipAccessRecord,
 } from "./pip-permissions";
 
@@ -68,5 +70,31 @@ describe("PIP access rules", () => {
     expect(goalWeightsAddUp([33.33, 33.33, 33.34])).toBe(true);
     expect(goalWeightsAddUp([25])).toBe(false);
     expect(goalWeightsAddUp([60, 60])).toBe(false);
+  });
+});
+
+describe("PIP v2 manager permissions", () => {
+  const managed = { status: "active" as const, hr_owner_user_id: "hr-1", employee_email: "emp@x.com", manager_user_id: "mgr-1" };
+
+  it("manager can view and review a running plan they manage", () => {
+    expect(canViewPip("employee", "mgr-1", "mgr@x.com", managed)).toBe(true);
+    expect(canReviewPip("employee", "mgr-1", managed)).toBe(true);
+  });
+
+  it("manager cannot see drafts, other plans, or change structure and status", () => {
+    expect(canViewPip("employee", "mgr-1", "mgr@x.com", { ...managed, status: "draft" })).toBe(false);
+    expect(canViewPip("employee", "mgr-2", "mgr2@x.com", managed)).toBe(false);
+    expect(canManagePipGoals("employee", "mgr-1", managed)).toBe(false);
+    expect(canChangePipStatus("employee", "mgr-1", managed, "completed")).toBe(false);
+    expect(isPipOwner("employee", "mgr-1", managed)).toBe(false);
+  });
+
+  it("manager cannot review a closed plan", () => {
+    expect(canReviewPip("employee", "mgr-1", { ...managed, status: "completed" })).toBe(false);
+  });
+
+  it("an HR Admin who is only the manager is not the owner", () => {
+    expect(canViewPip("hr_admin", "mgr-1", "mgr@x.com", managed)).toBe(true);
+    expect(isPipOwner("hr_admin", "mgr-1", managed)).toBe(false);
   });
 });
